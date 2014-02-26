@@ -105,11 +105,5 @@ namespace Codify.Windows.Entities
         }
 
         private Window _owner;
-
-        private void ShowView(TView view)
-        {
-            if (IsDialogWindow) view.ShowDialog();
-            else view.Show();
-        }
     }
 }

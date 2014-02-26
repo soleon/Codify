@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interactivity;
+using System.Windows.Media;
 using Codify.Extensions;
 using Codify.Windows.Extensions;
 
@@ -32,6 +33,17 @@ namespace Codify.Windows.Interactivity
 
         private void OnDataGridPreviewMouseDown(object sender, MouseButtonEventArgs args)
         {
+            // Only proceed if the event happens on a DataGridRow.
+            var element = args.OriginalSource as DependencyObject;
+            while (element != AssociatedObject && element != null)
+            {
+                if (element is DataGridRow)
+                    goto Proceed;
+                element = VisualTreeHelper.GetParent(element);
+            }
+            return;
+
+            Proceed:
             args.Handled = true;
 
             var dataGridRow = VisualTreeExtension.FindParentObject<DataGridRow>((DependencyObject) args.OriginalSource);
