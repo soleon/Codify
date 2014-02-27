@@ -43,8 +43,8 @@ namespace Codify.Entities
         public void Activate()
         {
             if (IsActivated || IsDisposed) return;
-            OnActivate();
             IsActivated = true;
+            OnActivate();
         }
 
         /// <summary>
