@@ -10,58 +10,57 @@ namespace Codify.Windows.Interactivity
 {
     public class DataGridEnhancedSelection : Behavior<DataGrid>
     {
-        private readonly MouseButtonEventHandler _previewMouseDownEventHandler, _dataGridRowMouseUpEventHandler;
         private object _previousSelection;
-
-        public DataGridEnhancedSelection()
-        {
-            _previewMouseDownEventHandler = OnDataGridPreviewMouseDown;
-            _dataGridRowMouseUpEventHandler = OnDataGridRowMouseUp;
-        }
 
         protected override void OnAttached()
         {
             base.OnAttached();
-            AssociatedObject.AddHandler(UIElement.PreviewMouseDownEvent, _previewMouseDownEventHandler, true);
+            AssociatedObject.AddHandler(UIElement.PreviewMouseDownEvent, (MouseButtonEventHandler)OnDataGridPreviewMouseDown, true);
         }
 
         protected override void OnDetaching()
         {
-            AssociatedObject.RemoveHandler(UIElement.PreviewMouseDownEvent, _previewMouseDownEventHandler);
+            AssociatedObject.RemoveHandler(UIElement.PreviewMouseDownEvent, (MouseButtonEventHandler)OnDataGridPreviewMouseDown);
             base.OnDetaching();
         }
 
         private void OnDataGridPreviewMouseDown(object sender, MouseButtonEventArgs args)
         {
-            // Only proceed if the event happens on a DataGridRow.
+            // Only proceed if the event happens on a DataGridRow that is directly in the associated DataGrid and there's no nested DataGrid.
+            var associatedDataGrid = AssociatedObject;
+            DataGridRow dataGridRow = null;
             var element = args.OriginalSource as DependencyObject;
-            while (element != AssociatedObject && element != null)
+            while (element != associatedDataGrid && element != null)
             {
-                if (element is DataGridRow)
-                    goto Proceed;
+                if (element is DataGrid)
+                {
+                    args.Handled = true;
+                    return;
+                }
+                if (dataGridRow == null)
+                    dataGridRow = element as DataGridRow;
                 element = VisualTreeHelper.GetParent(element);
             }
-            return;
 
-            Proceed:
+            if (dataGridRow == null) return;
+
             args.Handled = true;
 
-            var dataGridRow = VisualTreeExtension.FindParentObject<DataGridRow>((DependencyObject) args.OriginalSource);
-            if (dataGridRow == null)
-                AssociatedObject.SelectedItems.Clear();
+            var keyModifiers = Keyboard.Modifiers;
+
+            // Remember selection start for future multi-select action when Shift key is down.
+            if ((keyModifiers & ModifierKeys.Shift) != ModifierKeys.Shift || _previousSelection == null)
+                _previousSelection = dataGridRow.DataContext;
+
+            if (!dataGridRow.IsSelected)
+                ProcessItemSelection(dataGridRow);
             else
             {
-                var keyModifiers = Keyboard.Modifiers;
-
-                // Remember selection start for future multi-select action when Shift key is down.
-                if ((keyModifiers & ModifierKeys.Shift) != ModifierKeys.Shift || _previousSelection == null)
-                    _previousSelection = dataGridRow.DataContext;
-
-                if (AssociatedObject.SelectedItems.Count < 2)
+                if (AssociatedObject.SelectedItems.Count < 2 && keyModifiers != ModifierKeys.Control)
                     ProcessItemSelection(dataGridRow);
                 else
                     // Handles mouse up event on this item regardless if the event is set to handled.
-                    dataGridRow.AddHandler(UIElement.MouseUpEvent, _dataGridRowMouseUpEventHandler, true);
+                    dataGridRow.AddHandler(UIElement.MouseUpEvent, (MouseButtonEventHandler)OnDataGridRowMouseUp, true);
             }
         }
 
@@ -71,10 +70,10 @@ namespace Codify.Windows.Interactivity
         /// </summary>
         private void OnDataGridRowMouseUp(object sender, MouseButtonEventArgs e)
         {
-            var dataGridRow = (DataGridRow) sender;
+            var dataGridRow = (DataGridRow)sender;
 
             // Remove this handler itself. It should be re-attached in the next mouse up event on a selected item if there are already multiple items selected.
-            dataGridRow.RemoveHandler(UIElement.MouseUpEvent, _dataGridRowMouseUpEventHandler);
+            dataGridRow.RemoveHandler(UIElement.MouseUpEvent, (MouseButtonEventHandler)OnDataGridRowMouseUp);
 
             if (e.ChangedButton == MouseButton.Left)
                 ProcessItemSelection(dataGridRow);
@@ -100,19 +99,32 @@ namespace Codify.Windows.Interactivity
                         break;
                     var currentIndex = dataGridRow.GetIndex();
                     if (previousSelectionIndex == currentIndex)
-                        AssociatedObject.ItemContainerGenerator.ContainerFromIndex(currentIndex).UseIfNotNull(container => ((DataGridRow) container).IsSelected = true);
+                        SelectItemAt(currentIndex);
                     else
-                    {
-                        var end = previousSelectionIndex < currentIndex ? currentIndex : previousSelectionIndex;
-                        for (var start = previousSelectionIndex < currentIndex ? previousSelectionIndex : currentIndex; start <= end; start++)
-                            AssociatedObject.ItemContainerGenerator.ContainerFromIndex(start).UseIfNotNull(container => ((DataGridRow) container).IsSelected = true);
-                    }
+                        for (var i = previousSelectionIndex < currentIndex ? previousSelectionIndex : currentIndex; i <= (previousSelectionIndex < currentIndex ? currentIndex : previousSelectionIndex); i++)
+                            SelectItemAt(i);
                     break;
                 default:
-                    selectedItems.Clear();
+                    for (var i = selectedItems.Count - 1; i >= 0; i--)
+                    {
+                        var item = selectedItems[i];
+                        if (item == dataGridRow || item == dataGridRow.DataContext)
+                            continue;
+                        selectedItems.RemoveAt(i);
+                    }
                     dataGridRow.IsSelected = true;
                     break;
             }
+        }
+
+        private void SelectItemAt(int index)
+        {
+            AssociatedObject.ItemContainerGenerator.ContainerFromIndex(index).UseIfNotNull(container =>
+            {
+                // Only allow selection on the visible rows.
+                var row = ((DataGridRow)container);
+                row.IsSelected = row.Visibility == Visibility.Visible;
+            });
         }
     }
 }

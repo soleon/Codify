@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,7 +57,7 @@ namespace Codify.Windows.Interactivity.Reactive
             set { SetValue(AllowedEffectsProperty, value); }
         }
 
-        public static readonly DependencyProperty AllowedEffectsProperty = DependencyProperty.Register("AllowedEffects", typeof (DragDropEffects), typeof (DragBehavior));
+        public static readonly DependencyProperty AllowedEffectsProperty = DependencyProperty.Register("AllowedEffects", typeof (DragDropEffects), typeof (DragBehavior), new PropertyMetadata(DragDropEffects.All));
 
         public object DragDataObject
         {
@@ -96,10 +97,6 @@ namespace Codify.Windows.Interactivity.Reactive
                     .Where(pattern => AllowDrag).Take(1).Subscribe(pattern =>
                     {
                         // Initialize whatever is needed the first time the mouse is entering the area of the associated object.
-                        UIElement rootUIElement = null;
-                        AdornerLayer adornerLayer = null;
-                        IObservable<Point> mouseDragOverPositions = null;
-
                         // Setup queries for basic event sequences.
                         var mouseDownPositions =
                             Observable.FromEventPattern<MouseButtonEventArgs>(
@@ -135,8 +132,13 @@ namespace Codify.Windows.Interactivity.Reactive
                                 .Take(1));
 
                         // Subscribe to the drag start event sequence.
+                        UIElement rootUIElement = null;
+                        AdornerLayer adornerLayer = null;
                         _dragStartEventSubscription = dragStartPositions.Subscribe(startMousePosition =>
                         {
+                            IObservable<Point> mouseDragOverPositions = null;
+                            IObservable<EventPattern<System.Windows.DragEventArgs>> dragLeaveEvents = null, dragEnterEvents = null;
+
                             associatedObject.ReleaseMouseCapture();
 
                             // Notify preview drag start.
@@ -168,6 +170,12 @@ namespace Codify.Windows.Interactivity.Reactive
                                     handler => rootUIElement.AddHandler(UIElement.PreviewDragOverEvent, new DragEventHandler(handler), true),
                                     handler => rootUIElement.RemoveHandler(UIElement.PreviewDragOverEvent, new DragEventHandler(handler)))
                                     .Select(eventPattern => eventPattern.EventArgs.GetPosition(adornerLayer));
+                                dragEnterEvents = Observable.FromEventPattern<System.Windows.DragEventArgs>(
+                                    handler => rootUIElement.AddHandler(UIElement.PreviewDragEnterEvent, new DragEventHandler(handler), true),
+                                    handler => rootUIElement.RemoveHandler(UIElement.PreviewDragOverEvent, new DragEventHandler(handler)));
+                                dragLeaveEvents = Observable.FromEventPattern<System.Windows.DragEventArgs>(
+                                    handler => rootUIElement.AddHandler(UIElement.PreviewDragLeaveEvent, new DragEventHandler(handler), true),
+                                    handler => rootUIElement.RemoveHandler(UIElement.PreviewDragLeaveEvent, new DragEventHandler(handler)));
                             }
 
                             // Setup adorner.
@@ -183,15 +191,23 @@ namespace Codify.Windows.Interactivity.Reactive
 
                             DragDropEffects resultDragDropEffects;
 
-                            var dataObject = new DataObject();
+                            var dataObject = DragDataObject as DataObject;
+                            if (dataObject == null)
+                            {
+                                dataObject = new DataObject();
+                                if (DragDataObject != null)
+                                    dataObject.SetData(DragDataObject);
+                            }
+
                             dataObject.SetData(associatedObject);
 
-                            if (DragDataObject != null)
-                                dataObject.SetData(DragDataObject);
+                            // The following "using" block ensures the subscriptions are disposed right after the drag and drop action.
 
                             // Subscribe to drag over events of the root element only when the drag and drop action is in place.
-                            // The "using" block ensures the subscription is disposed right after the drag and drop action.
                             using (mouseDragOverPositions.Subscribe(currentMousePosition => dragAdorner.SetPosition(currentMousePosition.X - startMousePosition.X, currentMousePosition.Y - startMousePosition.Y)))
+                                // Subscribe 
+                            using (dragEnterEvents.Subscribe(_ => dragAdorner.Visibility = Visibility.Visible))
+                            using (dragLeaveEvents.Subscribe(_ => dragAdorner.Visibility = Visibility.Collapsed))
                                 resultDragDropEffects = DragDrop.DoDragDrop(associatedObject, dataObject, AllowedEffects);
 
                             adornerLayer.Remove(dragAdorner);
