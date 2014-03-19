@@ -46,7 +46,7 @@ namespace Codify.Windows.Entities
         /// <summary>
         ///     Hides the window view.
         /// </summary>
-        protected override void OnDeActivate()
+        protected override void OnDeactivate()
         {
             View.UseIfNotNull(v =>
             {
@@ -59,7 +59,7 @@ namespace Codify.Windows.Entities
                 else v.Dispatcher.Invoke(action);
                 View = null;
             });
-            base.OnDeActivate();
+            base.OnDeactivate();
         }
 
         /// <summary>

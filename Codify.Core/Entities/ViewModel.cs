@@ -53,7 +53,7 @@ namespace Codify.Entities
         public void Deactivate()
         {
             if (!IsActivated) return;
-            OnDeActivate();
+            OnDeactivate();
             IsActivated = false;
         }
 
@@ -75,7 +75,7 @@ namespace Codify.Entities
         /// <summary>
         ///     Called when <see cref="Deactivate" /> method is executed on this view model.
         /// </summary>
-        protected virtual void OnDeActivate() { }
+        protected virtual void OnDeactivate() { }
 
         #endregion
     }
