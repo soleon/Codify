@@ -48,10 +48,6 @@
       <Project>{d4e80bb8-38a3-4607-9d53-d6e003f6cc92}</Project>
       <Name>Codify.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Codify\Codify.Windows.csproj">
-      <Project>{564CB9E2-28F7-4858-A2BD-96DDAE227399}</Project>
-      <Name>Codify.Windows</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

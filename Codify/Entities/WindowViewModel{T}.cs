@@ -8,14 +8,14 @@ namespace Codify.Windows.Entities
     ///     This is the base class of a view model that automatically creates and owns a view of type
     ///     <see cref="T:System.Windows.Window" />.
     /// </summary>
-    public abstract class WindowViewModel<TView> : ViewModel<TView> where TView : Window, new()
+    public abstract class WindowViewModel<T> : ViewModel<T> where T : Window, new()
     {
         /// <summary>
         ///     Called when the of this view model is closed.
         /// </summary>
         private void OnViewClosed(object sender, EventArgs eventArgs)
         {
-            ((TView) sender).Closed -= OnViewClosed;
+            ((T) sender).Closed -= OnViewClosed;
             Deactivate();
         }
 

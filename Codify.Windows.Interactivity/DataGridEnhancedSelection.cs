@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media;
 using Codify.Extensions;
-using Codify.Windows.Extensions;
 
 namespace Codify.Windows.Interactivity
 {
