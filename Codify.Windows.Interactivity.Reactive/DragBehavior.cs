@@ -134,10 +134,10 @@ namespace Codify.Windows.Interactivity.Reactive
                         // Subscribe to the drag start event sequence.
                         UIElement rootUIElement = null;
                         AdornerLayer adornerLayer = null;
+                        IObservable<Point> mouseDragOverPositions = null;
+                        IObservable<EventPattern<System.Windows.DragEventArgs>> dragLeaveEvents = null, dragEnterEvents = null;
                         _dragStartEventSubscription = dragStartPositions.Subscribe(startMousePosition =>
                         {
-                            IObservable<Point> mouseDragOverPositions = null;
-                            IObservable<EventPattern<System.Windows.DragEventArgs>> dragLeaveEvents = null, dragEnterEvents = null;
 
                             associatedObject.ReleaseMouseCapture();
 
