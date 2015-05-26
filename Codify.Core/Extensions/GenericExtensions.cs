@@ -18,6 +18,17 @@ namespace Codify.Extensions
             if (target != null && action != null) action(target);
         }
 
+
+        /// <summary>
+        ///     Execute the specified action if the target is null.
+        /// </summary>
+        /// <param name="target">The target to check for nullity.</param>
+        /// <param name="action">The action to execute if <see cref="target" /> is null.</param>
+        public static void DoIfNull(this object target, Action action)
+        {
+            if (target == null && action != null) action();
+        }
+
         /// <summary>
         ///     Processes the target and returns a value if the target is not null.
         /// </summary>
