@@ -49,6 +49,7 @@
     <Compile Include="Entities\BindingProxy.cs" />
     <Compile Include="Entities\ViewModel{T}.cs" />
     <Compile Include="Entities\WindowViewModel{T}.cs" />
+    <Compile Include="Extensions\ConcurrentExecutionExtensions.cs" />
     <Compile Include="Extensions\DelegateExtensions.cs" />
     <Compile Include="Extensions\MultiSelectorExtension.cs" />
     <Compile Include="Extensions\TreeViewExtensions.cs" />
