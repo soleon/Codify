@@ -7,85 +7,73 @@ using System.Threading.Tasks;
 namespace Codify.Windows.Extensions
 {
     /// <summary>
-    /// A collection of extension methods to aggregate calls to a specified asynchronous function that returns a <see cref="Task{TResult}"/>.
+    /// A collection of extension methods to aggregate calls to an asynchronous function.
     /// 
-    /// If the function is called while the asynchronous process of the function is still in progress, the same <see cref="Task{TResult}"/>
+    /// If the function is called while the process is still going, the same <see cref="Task"/>
     /// will be returned to the caller.
     /// 
-    /// If the function is called with a specified minimum interval, and the time interval between this call and the completion of the last call
-    /// is shorter then the minimum interval, a new <see cref="Task{TResult}"/> is generated and returned immediately, this task then waits until
+    /// If the function is called with a minimum interval, and the time interval between this call and the completion of the last call
+    /// is shorter then the minimum interval, a new <see cref="Task"/> is generated and returned immediately, this task then waits until
     /// the minimum interval is elapsed before executing the actual function.
-    /// 
-    /// This extension supports function delegates taking up to 8 parameters.
     /// </summary>
     public static class ConcurrentExecutionExtensions
     {
-        private static readonly ConcurrentDictionary<MulticastDelegate, FunctionContext> FunctionContexts = new ConcurrentDictionary<MulticastDelegate, FunctionContext>();
+        private static readonly ConcurrentDictionary<MulticastDelegate, DelegateContext> DelegateContexts = new ConcurrentDictionary<MulticastDelegate, DelegateContext>();
 
-        public static Task<TResult> Aggregate<T, TResult>(this Func<T, Task<TResult>> func, T arg, TimeSpan? minimumInterval = null)
+        public static Task Aggregate(this Func<Task> func, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null, params object[] parameters)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg);
+            return Aggregate<object, Task>(func, minimumInterval, scheduler, parameters);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, TResult>(this Func<T1, T2, Task<TResult>> func, T1 arg1, T2 arg2, TimeSpan? minimumInterval = null)
+        public static Task<TResult> Aggregate<TResult>(this Func<Task<TResult>> func, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2);
+            return Aggregate<TResult, Task<TResult>>(func, minimumInterval, scheduler, null);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, T3, TResult>(this Func<T1, T2, T3, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, TimeSpan? minimumInterval = null)
+        public static Task<TResult> Aggregate<T, TResult>(this Func<T, Task<TResult>> func, T arg, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3);
+            return Aggregate<TResult, Task<TResult>>(func, minimumInterval, scheduler, arg);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, T3, T4, TResult>(this Func<T1, T2, T3, T4, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, TimeSpan? minimumInterval = null)
+        public static Task<TResult> Aggregate<T1, T2, TResult>(this Func<T1, T2, Task<TResult>> func, T1 arg1, T2 arg2, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3, arg4);
+            return Aggregate<TResult, Task<TResult>>(func, minimumInterval, scheduler, arg1, arg2);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, T3, T4, T5, TResult>(this Func<T1, T2, T3, T4, T5, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, TimeSpan? minimumInterval = null)
+        public static Task<TResult> Aggregate<T1, T2, T3, TResult>(this Func<T1, T2, T3, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3, arg4, arg5);
+            return Aggregate<TResult, Task<TResult>>(func, minimumInterval, scheduler, arg1, arg2, arg3);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(this Func<T1, T2, T3, T4, T5, T6, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, TimeSpan? minimumInterval = null)
+        public static Task<TResult> Aggregate<T1, T2, T3, T4, TResult>(this Func<T1, T2, T3, T4, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null)
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3, arg4, arg5, arg6);
+            return Aggregate<TResult, Task<TResult>>(func, minimumInterval, scheduler, arg1, arg2, arg3, arg4);
         }
 
-        public static Task<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, TimeSpan? minimumInterval = null)
+        private static TTask Aggregate<TResult, TTask>(MulticastDelegate @delegate, TimeSpan? minimumInterval = null, TaskScheduler scheduler = null, params object[] parameters) where TTask : Task
         {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-        }
-
-        public static Task<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> func, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, TimeSpan? minimumInterval = null)
-        {
-            return Aggregate<TResult>(func, minimumInterval, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-        }
-
-        private static Task<TResult> Aggregate<TResult>(this MulticastDelegate func, TimeSpan? minimumInterval = null, params object[] parameters)
-        {
-            var functionContext = FunctionContexts.GetOrAdd(func, _ => new FunctionContext());
-            lock (functionContext)
+            var delegateContext = DelegateContexts.GetOrAdd(@delegate, _ => new DelegateContext());
+            lock (delegateContext)
             {
-                // If there is already a download task, just return this one.
-                if (functionContext.Task != null)
-                    return (Task<TResult>)functionContext.Task;
+                // If there is already a task for this delegate, just return it.
+                if (delegateContext.Task != null)
+                    return (TTask)delegateContext.Task;
 
-                // Get method info of the Invoke method of the function delegate.
-                var invokeMethodInfo = func.GetType().GetMethod("Invoke", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                // Get method info of the Invoke method of the delegate.
+                var invokeMethodInfo = @delegate.GetType().GetMethod("Invoke", BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
                 var hasValidMinimumInterval = minimumInterval != null && minimumInterval > TimeSpan.Zero;
                 if (hasValidMinimumInterval)
                 {
                     // Check if the time between this invoke request and the previous one is too close.
-                    var intervalFromLastInvoke = DateTime.Now - functionContext.LastExecutionTime;
+                    var intervalFromLastInvoke = DateTime.Now - delegateContext.LastExecutionTime;
                     if (intervalFromLastInvoke < minimumInterval)
                     {
-                        // If this invoke request is too close to the previous one,
-                        // make this request wait until the minimum interval is passed,
-                        // then invoke the function.
+                        // If this invocation is too close to the previous one,
+                        // wait until the minimum interval is passed,
+                        // then invoke the delegate.
                         var waitTaskSource = new TaskCompletionSource<bool>();
-                        functionContext.Task = waitTaskSource.Task.ContinueWith(_ => (Task<TResult>)invokeMethodInfo.Invoke(func, parameters)).Unwrap();
+                        delegateContext.Task = waitTaskSource.Task.ContinueWith(_ => (Task)invokeMethodInfo.Invoke(@delegate, parameters), scheduler).Unwrap();
 
                         // Force the wait in a background thread to ensure a non-blocking UI experience.
                         ThreadPool.QueueUserWorkItem(_ =>
@@ -95,40 +83,62 @@ namespace Codify.Windows.Extensions
                         });
                     }
                     else
-                        // If this invoke request is far enough from the last one,
-                        // just invoke the function.
-                        functionContext.Task = (Task)invokeMethodInfo.Invoke(func, parameters);
+                        // If this invocation is far enough from the last one,
+                        // just invoke the delegate.
+                        delegateContext.Task =
+                            scheduler == null ?
+                                (Task)invokeMethodInfo.Invoke(@delegate, parameters) :
+                                Task.Factory.StartNew(() => (Task)invokeMethodInfo.Invoke(@delegate, parameters), CancellationToken.None, TaskCreationOptions.None, scheduler).Unwrap();
                 }
                 else
                     // If there is no valid minimum invocation interval,
-                    // just invoke the function.
-                    functionContext.Task = (Task)invokeMethodInfo.Invoke(func, parameters);
+                    // just invoke the delegate.
+                    delegateContext.Task =
+                        scheduler == null ?
+                            (Task)invokeMethodInfo.Invoke(@delegate, parameters) :
+                            Task.Factory.StartNew(() => (Task)invokeMethodInfo.Invoke(@delegate, parameters), CancellationToken.None, TaskCreationOptions.None, scheduler).Unwrap();
 
-                // When the function task is completed, always clear the task reference
-                // and update the invoke timestamp.
-                return (Task<TResult>)(functionContext.Task = ((Task<TResult>)functionContext.Task).ContinueWith(task =>
-                {
-                    lock (functionContext)
+                // Define what happens when the task of the delegate completes.
+
+                if (typeof(TTask) == typeof(Task<TResult>))
+                    return (TTask)(delegateContext.Task = ((Task<TResult>)delegateContext.Task).ContinueWith(task =>
                     {
+                        lock (delegateContext)
+                            if (hasValidMinimumInterval)
+                            {
+                                // If there is a minimum invocation interval,
+                                // just clear the task returned by the delegate,
+                                // and update the execution time stamp.
+                                delegateContext.Task = null;
+                                delegateContext.LastExecutionTime = DateTime.Now;
+                            }
+                            else
+                                // If there is no minimum invocation interval,
+                                // just remove the function context.
+                                DelegateContexts.TryRemove(@delegate, out delegateContext);
+                        return task.Result;
+                    }));
+
+                return (TTask)(delegateContext.Task = delegateContext.Task.ContinueWith(task =>
+                {
+                    lock (delegateContext)
                         if (hasValidMinimumInterval)
                         {
-                            // If a valid minimum invocation interval is specified,
-                            // just clear the task returned by the function,
+                            // If there is a minimum invocation interval,
+                            // just clear the task returned by the delegate,
                             // and update the execution time stamp.
-                            functionContext.Task = null;
-                            functionContext.LastExecutionTime = DateTime.Now;
+                            delegateContext.Task = null;
+                            delegateContext.LastExecutionTime = DateTime.Now;
                         }
                         else
-                            // If no valid minimum invocation interval is specified,
+                            // If there is no minimum invocation interval,
                             // just remove the function context.
-                            FunctionContexts.TryRemove(func, out functionContext);
-                        return task.Result;
-                    }
+                            DelegateContexts.TryRemove(@delegate, out delegateContext);
                 }));
             }
         }
 
-        private class FunctionContext
+        private class DelegateContext
         {
             internal Task Task;
             internal DateTime LastExecutionTime;
