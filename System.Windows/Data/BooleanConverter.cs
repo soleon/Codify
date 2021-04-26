@@ -26,7 +26,7 @@ namespace Codify.System.Windows.Data
                 {
                     var type = value.GetType();
                     return type.IsValueType
-                        ? Activator.CreateInstance(type) == value ? !isInvert : isInvert
+                        ? Equals(Activator.CreateInstance(type), value) ? isInvert : !isInvert
                         : !isInvert;
                 }
             }

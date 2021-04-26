@@ -1,51 +1,48 @@
 ﻿using System;
 using System.Windows;
-using Codify.System.ComponentModel;
 
 namespace Codify.System.Windows.Controls
 {
-    public abstract class WindowViewModel<T> : NotificationObject where T : Window, new()
+    public abstract class WindowViewModel<T> : ViewModel<T> where T : Window, new()
     {
-        private T _window;
-
         public bool? ShowDialog(Window owner = null)
         {
-            return GetWindow(owner).ShowDialog();
+            var window = View;
+            window.Owner = owner;
+            return window.ShowDialog();
         }
 
         public void Show(Window owner = null)
         {
-            GetWindow(owner).Show();
+            var window = View;
+            window.Owner = owner;
+            window.Show();
         }
 
-        protected internal T GetWindow(Window owner = null)
+        public void Hide()
         {
-            if (_window != null)
-            {
-                if (owner != null)
-                {
-                    _window.Owner = owner;
-                }
-
-                return _window;
-            }
-
-            _window = new T {DataContext = this, Owner = owner};
-
-            void OnWindowOnClosed(object _, EventArgs __)
-            {
-                _window.Closed -= OnWindowOnClosed;
-                _window = null;
-                OnClosed();
-            }
-
-            _window.Closed += OnWindowOnClosed;
-
-            return _window;
+            View.Hide();
         }
 
-        protected virtual void OnClosed()
+        public void Close()
         {
+            View.Close();
+        }
+
+        protected override T CreateNewView()
+        {
+            var window = base.CreateNewView();
+
+            void OnClosed(object _, EventArgs __)
+            {
+                window.Closed -= OnClosed;
+                OnUnload();
+                View = null;
+            }
+
+            window.Closed += OnClosed;
+
+            return window;
         }
     }
 }
