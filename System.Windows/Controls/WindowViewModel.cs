@@ -29,6 +29,11 @@ namespace Codify.System.Windows.Controls
             View.Close();
         }
 
+        public void Close(bool? dialogResult)
+        {
+            View.DialogResult = dialogResult;
+        }
+
         protected override T CreateNewView()
         {
             var window = base.CreateNewView();

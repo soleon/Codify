@@ -35,7 +35,7 @@ namespace Codify.System.Windows.Input
             {
                 return param switch
                 {
-                    null => true,
+                    null => canExecute == null || canExecute(default),
                     T value => canExecute == null || canExecute(value),
                     _ => throw new InvalidOperationException(
                         $"{param.GetType()} is not a valid parameter type for this command.")
