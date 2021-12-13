@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Codify.System.Windows.Data
 {
-    public class BooleanConverter : StaticInstanceBase<BooleanConverter>, IValueConverter
+    public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverter
     {
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
         {

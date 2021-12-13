@@ -7,7 +7,7 @@ namespace Codify.System.Collections.ObjectModel
 {
     public class BatchObservableCollection<T> : ObservableCollection<T>
     {
-        private static readonly PropertyChangedEventArgs CountPropertyChangedEventArgs =
+        private readonly PropertyChangedEventArgs _countPropertyChangedEventArgs =
             new PropertyChangedEventArgs(nameof(Count));
         private readonly object _collectionUpdateLock = new object();
         private bool _isUpdating;
@@ -42,7 +42,7 @@ namespace Codify.System.Collections.ObjectModel
                 _isUpdating = false;
             }
             NotifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            OnPropertyChanged(CountPropertyChangedEventArgs);
+            OnPropertyChanged(_countPropertyChangedEventArgs);
         }
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)

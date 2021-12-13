@@ -6,9 +6,9 @@ using System.Windows.Data;
 
 namespace Codify.System.Windows.Data
 {
-    public class MultiBooleanConverter : StaticInstanceBase<MultiBooleanConverter>, IMultiValueConverter
+    public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, IMultiValueConverter
     {
-        private static readonly BooleanConverter BooleanConverter = StaticInstanceBase<BooleanConverter>.Instance;
+        private static readonly BooleanConverter BooleanConverter = StaticInstance<BooleanConverter>.Instance;
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {

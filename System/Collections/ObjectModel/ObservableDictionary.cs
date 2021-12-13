@@ -5,7 +5,6 @@ namespace Codify.System.Collections.ObjectModel
 {
     public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
     {
-        private readonly object _accessLock = new object();
         private readonly Dictionary<TKey, TValue> _dictionary = new Dictionary<TKey, TValue>();
         private readonly Func<TValue, TKey> _getKey;
 
@@ -21,10 +20,9 @@ namespace Codify.System.Collections.ObjectModel
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
-                var (key, value) = item;
-                Add(key, value);
+                Add(item.Key, item.Value);
             }
         }
 
@@ -35,15 +33,17 @@ namespace Codify.System.Collections.ObjectModel
 
         void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            ((ICollection<KeyValuePair<TKey, TValue>>) _dictionary).CopyTo(array, arrayIndex);
+            lock (_dictionary)
+            {
+                ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).CopyTo(array, arrayIndex);
+            }
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
-                var (key, value) = item;
-                return Remove(key) && Remove(value);
+                return Remove(item.Key) && Remove(item.Value);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Codify.System.Collections.ObjectModel
 
         public void Add(TKey key, TValue value)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 _dictionary.Add(key, value);
                 Add(value);
@@ -65,7 +65,7 @@ namespace Codify.System.Collections.ObjectModel
 
         public bool Remove(TKey key)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 if (_dictionary.TryGetValue(key, out var item))
                 {
@@ -78,15 +78,24 @@ namespace Codify.System.Collections.ObjectModel
 
         public bool TryGetValue(TKey key, out TValue value)
         {
-            return _dictionary.TryGetValue(key, out value);
+            lock (_dictionary)
+            {
+                return _dictionary.TryGetValue(key, out value);
+            }
         }
 
         public TValue this[TKey key]
         {
-            get => _dictionary[key];
+            get
+            {
+                lock (_dictionary)
+                {
+                    return _dictionary[key];
+                }
+            }
             set
             {
-                lock (_accessLock)
+                lock (_dictionary)
                 {
                     if (_dictionary.TryGetValue(key, out var item))
                     {
@@ -98,12 +107,31 @@ namespace Codify.System.Collections.ObjectModel
             }
         }
 
-        public ICollection<TKey> Keys => _dictionary.Keys;
-        public ICollection<TValue> Values => _dictionary.Values;
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                lock (_dictionary)
+                {
+                    return _dictionary.Keys;
+                }
+            }
+        }
+
+        public ICollection<TValue> Values
+        {
+            get
+            {
+                lock (_dictionary)
+                {
+                    return _dictionary.Values;
+                }
+            }
+        }
 
         protected override void ClearItems()
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 _dictionary.Clear();
                 base.ClearItems();
@@ -112,7 +140,7 @@ namespace Codify.System.Collections.ObjectModel
 
         protected override void InsertItem(int index, TValue item)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 _dictionary[_getKey(item)] = item;
                 base.InsertItem(index, item);
@@ -121,7 +149,7 @@ namespace Codify.System.Collections.ObjectModel
 
         protected override void RemoveItem(int index)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 _dictionary.Remove(_getKey(this[index]));
                 base.RemoveItem(index);
@@ -130,7 +158,7 @@ namespace Codify.System.Collections.ObjectModel
 
         protected override void SetItem(int index, TValue item)
         {
-            lock (_accessLock)
+            lock (_dictionary)
             {
                 _dictionary[_getKey(this[index])] = item;
                 base.SetItem(index, item);

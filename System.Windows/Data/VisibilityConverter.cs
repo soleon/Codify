@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Codify.System.Windows.Data
 {
-    public sealed class VisibilityConverter : StaticInstanceBase<VisibilityConverter>, IValueConverter
+    public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Codify.System.Windows.Data
 {
-    public class EqualityConverter : StaticInstanceBase<EqualityConverter>, IValueConverter
+    public class EqualityConverter : StaticInstance<EqualityConverter>, IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
