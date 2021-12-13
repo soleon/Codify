@@ -1,0 +1,21 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "d4e80bb8-38a3-4607-9d53-d6e003f6cc92": {
+      "ProjectGuid": "d4e80bb8-38a3-4607-9d53-d6e003f6cc92",
+      "DisplayName": "Codify.Core",
+      "ColorIndex": 0
+    },
+    "e8a7334f-610c-4a5d-827b-78b65a925244": {
+      "ProjectGuid": "e8a7334f-610c-4a5d-827b-78b65a925244",
+      "DisplayName": "System",
+      "ColorIndex": 1
+    },
+    "5a130b9c-2d7a-4e19-b9a4-6cb9cba9bbe5": {
+      "ProjectGuid": "5a130b9c-2d7a-4e19-b9a4-6cb9cba9bbe5",
+      "DisplayName": "System.Windows",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}
