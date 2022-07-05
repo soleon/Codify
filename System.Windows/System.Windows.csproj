@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
+    <AssemblyName>$(SolutionName).$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Long Zhou</Authors>
@@ -14,10 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\System\System.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Input\" />
   </ItemGroup>
 
 </Project>
