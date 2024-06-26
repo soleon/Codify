@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyName>$(SolutionName).$(MSBuildProjectName)</AssemblyName>
+    <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <Authors>Long Zhou</Authors>
     <Version>1.0.5</Version>
