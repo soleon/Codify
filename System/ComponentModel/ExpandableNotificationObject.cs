@@ -1,23 +1,34 @@
-﻿namespace Codify.System.ComponentModel
+﻿namespace Codify.System.ComponentModel;
+
+public class ExpandableNotificationObject : NotificationObject
 {
-    public class ExpandableNotificationObject : NotificationObject
+    private bool _isExpanded;
+
+    private bool _isSelected;
+
+    public bool IsExpanded
     {
-        private bool _isExpanded;
-
-        public bool IsExpanded
+        get => _isExpanded;
+        set
         {
-            get => _isExpanded;
-            set
-            {
-                if (SetValue(ref _isExpanded, value) && value)
-                {
-                    OnExpanded();
-                }
-            }
+            if (SetValue(ref _isExpanded, value)) OnExpansionChanged(value);
         }
+    }
 
-        protected virtual void OnExpanded()
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
         {
+            if (SetValue(ref _isSelected, value)) OnSelectionChanged(value);
         }
+    }
+
+    protected virtual void OnExpansionChanged(bool isExpended)
+    {
+    }
+
+    protected virtual void OnSelectionChanged(bool isSelected)
+    {
     }
 }

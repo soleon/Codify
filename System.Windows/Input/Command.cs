@@ -1,24 +1,22 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
-namespace Codify.System.Windows.Input
+namespace Codify.System.Windows.Input;
+
+public abstract class Command : ICommand
 {
-    public abstract class Command : ICommand
+    protected Func<object, bool> CanExecuteFunc;
+
+    public bool CanExecute(object parameter)
     {
-        protected Func<object, bool> CanExecuteFunc;
+        return CanExecuteFunc == null || CanExecuteFunc(parameter);
+    }
 
-        public bool CanExecute(object parameter)
-        {
-            return CanExecuteFunc == null || CanExecuteFunc(parameter);
-        }
+    public abstract void Execute(object parameter);
 
-        public abstract void Execute(object parameter);
+    public event EventHandler CanExecuteChanged;
 
-        public event EventHandler CanExecuteChanged;
-
-        public void NotifyCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
+    public void NotifyCanExecuteChanged()
+    {
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

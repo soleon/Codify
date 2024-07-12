@@ -1,168 +1,158 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Codify.System.Collections.ObjectModel;
 
-namespace Codify.System.Collections.ObjectModel
+public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
 {
-    public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
+    private readonly Dictionary<TKey, TValue> _dictionary = new();
+    private readonly Func<TValue, TKey> _getKey;
+
+    public ObservableDictionary(Func<TValue, TKey> keyProvider)
     {
-        private readonly Dictionary<TKey, TValue> _dictionary = new Dictionary<TKey, TValue>();
-        private readonly Func<TValue, TKey> _getKey;
+        _getKey = keyProvider;
+    }
 
-        public ObservableDictionary(Func<TValue, TKey> keyProvider)
+    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+    {
+        return _dictionary.GetEnumerator();
+    }
+
+    void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+    {
+        lock (_dictionary)
         {
-            _getKey = keyProvider;
+            Add(item.Key, item.Value);
         }
+    }
 
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+    bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
+    {
+        return ContainsKey(item.Key);
+    }
+
+    void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    {
+        lock (_dictionary)
         {
-            return _dictionary.GetEnumerator();
+            ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).CopyTo(array, arrayIndex);
         }
+    }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+    bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+    {
+        lock (_dictionary)
+        {
+            return Remove(item.Key) && Remove(item.Value);
+        }
+    }
+
+    public bool IsReadOnly { get; } = false;
+
+    public void Add(TKey key, TValue value)
+    {
+        lock (_dictionary)
+        {
+            _dictionary.Add(key, value);
+            Add(value);
+        }
+    }
+
+    public bool ContainsKey(TKey key)
+    {
+        return _dictionary.ContainsKey(key);
+    }
+
+    public bool Remove(TKey key)
+    {
+        lock (_dictionary)
+        {
+            if (_dictionary.TryGetValue(key, out var item)) Remove(item);
+
+            return _dictionary.Remove(key);
+        }
+    }
+
+    public bool TryGetValue(TKey key, out TValue value)
+    {
+        lock (_dictionary)
+        {
+            return _dictionary.TryGetValue(key, out value);
+        }
+    }
+
+    public TValue this[TKey key]
+    {
+        get
         {
             lock (_dictionary)
             {
-                Add(item.Key, item.Value);
+                return _dictionary[key];
             }
         }
-
-        bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
-        {
-            return ContainsKey(item.Key);
-        }
-
-        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        set
         {
             lock (_dictionary)
             {
-                ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).CopyTo(array, arrayIndex);
+                if (_dictionary.TryGetValue(key, out var item)) base.SetItem(IndexOf(item), value);
+
+                _dictionary[key] = value;
             }
         }
+    }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+    public ICollection<TKey> Keys
+    {
+        get
         {
             lock (_dictionary)
             {
-                return Remove(item.Key) && Remove(item.Value);
+                return _dictionary.Keys;
             }
         }
+    }
 
-        public bool IsReadOnly { get; } = false;
-
-        public void Add(TKey key, TValue value)
+    public ICollection<TValue> Values
+    {
+        get
         {
             lock (_dictionary)
             {
-                _dictionary.Add(key, value);
-                Add(value);
+                return _dictionary.Values;
             }
         }
+    }
 
-        public bool ContainsKey(TKey key)
+    protected override void ClearItems()
+    {
+        lock (_dictionary)
         {
-            return _dictionary.ContainsKey(key);
+            _dictionary.Clear();
+            base.ClearItems();
         }
+    }
 
-        public bool Remove(TKey key)
+    protected override void InsertItem(int index, TValue item)
+    {
+        lock (_dictionary)
         {
-            lock (_dictionary)
-            {
-                if (_dictionary.TryGetValue(key, out var item))
-                {
-                    Remove(item);
-                }
-
-                return _dictionary.Remove(key);
-            }
+            _dictionary[_getKey(item)] = item;
+            base.InsertItem(index, item);
         }
+    }
 
-        public bool TryGetValue(TKey key, out TValue value)
+    protected override void RemoveItem(int index)
+    {
+        lock (_dictionary)
         {
-            lock (_dictionary)
-            {
-                return _dictionary.TryGetValue(key, out value);
-            }
+            _dictionary.Remove(_getKey(this[index]));
+            base.RemoveItem(index);
         }
+    }
 
-        public TValue this[TKey key]
+    protected override void SetItem(int index, TValue item)
+    {
+        lock (_dictionary)
         {
-            get
-            {
-                lock (_dictionary)
-                {
-                    return _dictionary[key];
-                }
-            }
-            set
-            {
-                lock (_dictionary)
-                {
-                    if (_dictionary.TryGetValue(key, out var item))
-                    {
-                        base.SetItem(IndexOf(item), value);
-                    }
-
-                    _dictionary[key] = value;
-                }
-            }
-        }
-
-        public ICollection<TKey> Keys
-        {
-            get
-            {
-                lock (_dictionary)
-                {
-                    return _dictionary.Keys;
-                }
-            }
-        }
-
-        public ICollection<TValue> Values
-        {
-            get
-            {
-                lock (_dictionary)
-                {
-                    return _dictionary.Values;
-                }
-            }
-        }
-
-        protected override void ClearItems()
-        {
-            lock (_dictionary)
-            {
-                _dictionary.Clear();
-                base.ClearItems();
-            }
-        }
-
-        protected override void InsertItem(int index, TValue item)
-        {
-            lock (_dictionary)
-            {
-                _dictionary[_getKey(item)] = item;
-                base.InsertItem(index, item);
-            }
-        }
-
-        protected override void RemoveItem(int index)
-        {
-            lock (_dictionary)
-            {
-                _dictionary.Remove(_getKey(this[index]));
-                base.RemoveItem(index);
-            }
-        }
-
-        protected override void SetItem(int index, TValue item)
-        {
-            lock (_dictionary)
-            {
-                _dictionary[_getKey(this[index])] = item;
-                base.SetItem(index, item);
-            }
+            _dictionary[_getKey(this[index])] = item;
+            base.SetItem(index, item);
         }
     }
 }

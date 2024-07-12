@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
-    <Authors>Long Zhou</Authors>
-    <Version>1.0.6</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/soleon/Codify</RepositoryUrl>
-  </PropertyGroup>
-
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <Authors>Long Zhou</Authors>
+        <Version>1.0.7</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/soleon/Codify</RepositoryUrl>
+        <ImplicitUsings>true</ImplicitUsings>
+    </PropertyGroup>
 </Project>

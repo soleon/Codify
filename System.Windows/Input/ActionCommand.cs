@@ -1,62 +1,47 @@
-﻿using System;
+﻿namespace Codify.System.Windows.Input;
 
-namespace Codify.System.Windows.Input
+public sealed class ActionCommand : SyncCommand
 {
-    public sealed class ActionCommand : SyncCommand
+    public ActionCommand(Action execute, Func<bool> canExecute = null)
     {
-        public ActionCommand(Action execute, Func<bool> canExecute = null)
-        {
-            if (execute == null)
-            {
-                throw new ArgumentNullException(nameof(execute));
-            }
+        if (execute == null) throw new ArgumentNullException(nameof(execute));
 
-            ExecuteAction = _ =>
-            {
-                if (CanExecute(null))
-                {
-                    execute();
-                }
-            };
-            CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
-        }
+        ExecuteAction = _ =>
+        {
+            if (CanExecute(null)) execute();
+        };
+        CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
     }
+}
 
-    public sealed class ActionCommand<T> : SyncCommand
+public sealed class ActionCommand<T> : SyncCommand
+{
+    public ActionCommand(Action<T> execute, Func<T, bool> canExecute = null)
     {
-        public ActionCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        if (execute == null) throw new ArgumentNullException(nameof(execute));
+
+        ExecuteAction = param =>
         {
-            if (execute == null)
+            if (param is T value)
             {
-                throw new ArgumentNullException(nameof(execute));
+                if (CanExecute(value)) execute(value);
             }
-
-            ExecuteAction = param =>
+            else
             {
-                if (param is T value)
-                {
-                    if (CanExecute(value))
-                    {
-                        execute(value);
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        $"{param.GetType()} is not a valid parameter type for this command.");
-                }
-            };
+                throw new InvalidOperationException(
+                    $"{param.GetType()} is not a valid parameter type for this command.");
+            }
+        };
 
-            CanExecuteFunc = param =>
+        CanExecuteFunc = param =>
+        {
+            return param switch
             {
-                return param switch
-                {
-                    null => true,
-                    T value => canExecute == null || canExecute(value),
-                    _ => throw new InvalidOperationException(
-                        $"{param.GetType()} is not a valid parameter type for this command.")
-                };
+                null => true,
+                T value => canExecute == null || canExecute(value),
+                _ => throw new InvalidOperationException(
+                    $"{param.GetType()} is not a valid parameter type for this command.")
             };
-        }
+        };
     }
 }

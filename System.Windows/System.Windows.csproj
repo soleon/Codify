@@ -1,19 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Long Zhou</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.8</Version>
-    <PackageProjectUrl>https://github.com/soleon/Codify</PackageProjectUrl>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\System\System.csproj" />
-  </ItemGroup>
-
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>Long Zhou</Authors>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Version>1.0.9</Version>
+        <PackageProjectUrl>https://github.com/soleon/Codify</PackageProjectUrl>
+        <ImplicitUsings>true</ImplicitUsings>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\System\System.csproj"/>
+    </ItemGroup>
 </Project>

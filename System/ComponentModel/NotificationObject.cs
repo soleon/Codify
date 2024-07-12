@@ -1,47 +1,34 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Codify.System.ComponentModel
+namespace Codify.System.ComponentModel;
+
+public class NotificationObject : INotifyPropertyChanged
 {
-    public class NotificationObject : INotifyPropertyChanged
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected bool SetValue<T>(ref T source, T value, string propertyName, params string[] propertyNames)
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        if (!SetValue(ref source, value, propertyName)) return false;
 
-        protected bool SetValue<T>(ref T source, T value, string propertyName, params string[] propertyNames)
-        {
-            if (!SetValue(ref source, value, propertyName))
-            {
-                return false;
-            }
+        if (propertyNames == null) return true;
 
-            if (propertyNames == null)
-            {
-                return true;
-            }
+        foreach (var name in propertyNames) OnPropertyChanged(name);
 
-            foreach (var name in propertyNames)
-            {
-                OnPropertyChanged(name);
-            }
+        return true;
+    }
 
-            return true;
-        }
+    protected bool SetValue<T>(ref T source, T value, [CallerMemberName] string propertyName = null)
+    {
+        if (Equals(source, value)) return false;
 
-        protected bool SetValue<T>(ref T source, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(source, value))
-            {
-                return false;
-            }
+        source = value;
+        OnPropertyChanged(propertyName);
+        return true;
+    }
 
-            source = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

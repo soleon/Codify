@@ -1,22 +1,20 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Codify.System.Windows.Data
-{
-    public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var result = BooleanConverter.Instance.Convert(value, targetType, parameter, culture);
-            return result == DependencyProperty.UnsetValue ? result :
-                result is true ? Visibility.Visible : Visibility.Collapsed;
-        }
+namespace Codify.System.Windows.Data;
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var result = BooleanConverter.Instance.Convert(value, targetType, parameter, culture);
+        return result == DependencyProperty.UnsetValue ? result :
+            result is true ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
     }
 }
