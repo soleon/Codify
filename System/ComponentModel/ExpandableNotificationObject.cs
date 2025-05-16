@@ -11,7 +11,13 @@ public class ExpandableNotificationObject : NotificationObject
         get => _isExpanded;
         set
         {
-            if (SetValue(ref _isExpanded, value)) OnExpansionChanged(value);
+            if (!SetValue(ref _isExpanded, value))
+            {
+                return;
+            }
+
+            OnExpansionChanged(value);
+            OnExpansionChangedAsync(value);
         }
     }
 
@@ -20,7 +26,13 @@ public class ExpandableNotificationObject : NotificationObject
         get => _isSelected;
         set
         {
-            if (SetValue(ref _isSelected, value)) OnSelectionChanged(value);
+            if (!SetValue(ref _isSelected, value))
+            {
+                return;
+            }
+
+            OnSelectionChanged(value);
+            OnSelectionChangedAsync(value);
         }
     }
 
@@ -28,7 +40,17 @@ public class ExpandableNotificationObject : NotificationObject
     {
     }
 
+    protected virtual Task OnExpansionChangedAsync(bool isExpended)
+    {
+        return Task.CompletedTask;
+    }
+
     protected virtual void OnSelectionChanged(bool isSelected)
     {
+    }
+
+    protected virtual Task OnSelectionChangedAsync(bool isSelected)
+    {
+        return Task.CompletedTask;
     }
 }
