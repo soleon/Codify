@@ -75,7 +75,16 @@ dotnet build Codify.slnx --no-restore
 
 ### 2. Fix generic command null-parameter behavior
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed on branch `codex/observable-dictionary-checkpoint`.
+- Red check: `dotnet test .\Tests\Codify.System.Windows.Tests\Codify.System.Windows.Tests.csproj` failed before production edits with 7 failing command tests covering generic null handling and invalid parameter messages.
+- Verification: `dotnet test .\Tests\Codify.System.Windows.Tests\Codify.System.Windows.Tests.csproj` passed with 14/14 tests; it emitted the existing `Codify.System.Windows` package readme warning during package generation.
+- Verification: `dotnet test .\Codify.slnx` passed with 32/32 tests.
+- Verification: `dotnet build .\Codify.slnx --no-restore` succeeded with 0 warnings and 0 errors.
+- Verification: `dotnet format .\Codify.slnx --verify-no-changes --include .\System.Windows\Input\Command.cs .\System.Windows\Input\ActionCommand.cs .\System.Windows\Input\AsyncActionCommand.cs .\Tests\Codify.System.Windows.Tests\Input\ActionCommandTests.cs .\Tests\Codify.System.Windows.Tests\Input\AsyncActionCommandTests.cs --verbosity minimal` exited 0.
 
 Primary files:
 

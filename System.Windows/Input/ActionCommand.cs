@@ -22,26 +22,26 @@ public sealed class ActionCommand<T> : SyncCommand
 
         ExecuteAction = param =>
         {
-            if (param is T value)
+            if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                if (CanExecute(value)) execute(value);
+                if (CanExecute(param)) execute(value);
             }
-            else
+            else if (!CommandParameter<T>.IsNullInvalid(param))
             {
-                throw new InvalidOperationException(
-                    $"{param.GetType()} is not a valid parameter type for this command.");
+                throw CommandParameter<T>.CreateInvalidTypeException(param);
             }
         };
 
         CanExecuteFunc = param =>
         {
-            return param switch
+            if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                null => true,
-                T value => canExecute == null || canExecute(value),
-                _ => throw new InvalidOperationException(
-                    $"{param.GetType()} is not a valid parameter type for this command.")
-            };
+                return canExecute == null || canExecute(value);
+            }
+
+            return CommandParameter<T>.IsNullInvalid(param)
+                ? false
+                : throw CommandParameter<T>.CreateInvalidTypeException(param);
         };
     }
 }

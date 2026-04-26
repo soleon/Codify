@@ -17,20 +17,28 @@ public sealed class AsyncActionCommand<T> : AsyncCommand
     {
         if (execute == null) throw new ArgumentNullException(nameof(execute));
 
-        ExecuteFunc = param => param is T value
-            ? CanExecute(value) ? execute(value) : Task.CompletedTask
-            : throw new InvalidOperationException(
-                $"{param.GetType()} is not a valid parameter type for this command.");
+        ExecuteFunc = param =>
+        {
+            if (CommandParameter<T>.TryGetValue(param, out var value))
+            {
+                return CanExecute(param) ? execute(value) : Task.CompletedTask;
+            }
+
+            return CommandParameter<T>.IsNullInvalid(param)
+                ? Task.CompletedTask
+                : throw CommandParameter<T>.CreateInvalidTypeException(param);
+        };
 
         CanExecuteFunc = param =>
         {
-            return param switch
+            if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                null => canExecute == null || canExecute(default),
-                T value => canExecute == null || canExecute(value),
-                _ => throw new InvalidOperationException(
-                    $"{param.GetType()} is not a valid parameter type for this command.")
-            };
+                return canExecute == null || canExecute(value);
+            }
+
+            return CommandParameter<T>.IsNullInvalid(param)
+                ? false
+                : throw CommandParameter<T>.CreateInvalidTypeException(param);
         };
     }
 }
