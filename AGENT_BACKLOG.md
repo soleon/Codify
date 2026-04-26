@@ -345,6 +345,35 @@ dotnet pack System.Windows/System.Windows.csproj -c Release
 dotnet build Codify.slnx -c Release
 ```
 
+### 10. Populate packaged README after all other backlog tasks complete
+
+Status: pending
+
+Primary files:
+
+- `README.md`
+- `System/System.csproj`
+- `System.Windows/System.Windows.csproj`
+
+Problem:
+
+- `README.md` is included in both NuGet packages to satisfy package metadata expectations.
+- The file currently contains only the project name, so it should be populated with useful package documentation once the rest of the backlog has settled.
+
+Acceptance criteria:
+
+- Complete this task only after all earlier backlog tasks are marked `completed`.
+- Expand `README.md` with a concise project overview, supported target frameworks, package names, installation examples, and basic usage examples for both libraries.
+- Keep the readme suitable for NuGet package display.
+- Verify both packages still include the readme and pack without readme warnings.
+
+Suggested verification:
+
+```powershell
+dotnet pack System/System.csproj -c Release
+dotnet pack System.Windows/System.Windows.csproj -c Release
+```
+
 ## Completion Protocol
 
 When a task is finished:

@@ -2,9 +2,9 @@
 
 public sealed class ActionCommand : SyncCommand
 {
-    public ActionCommand(Action execute, Func<bool> canExecute = null)
+    public ActionCommand(Action execute, Func<bool>? canExecute = null)
     {
-        if (execute == null) throw new ArgumentNullException(nameof(execute));
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteAction = _ =>
         {
@@ -16,9 +16,9 @@ public sealed class ActionCommand : SyncCommand
 
 public sealed class ActionCommand<T> : SyncCommand
 {
-    public ActionCommand(Action<T> execute, Func<T, bool> canExecute = null)
+    public ActionCommand(Action<T> execute, Func<T, bool>? canExecute = null)
     {
-        if (execute == null) throw new ArgumentNullException(nameof(execute));
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteAction = param =>
         {
@@ -28,7 +28,7 @@ public sealed class ActionCommand<T> : SyncCommand
             }
             else if (!CommandParameter<T>.IsNullInvalid(param))
             {
-                throw CommandParameter<T>.CreateInvalidTypeException(param);
+                throw CommandParameter<T>.CreateInvalidTypeException(param!);
             }
         };
 
@@ -41,7 +41,7 @@ public sealed class ActionCommand<T> : SyncCommand
 
             return CommandParameter<T>.IsNullInvalid(param)
                 ? false
-                : throw CommandParameter<T>.CreateInvalidTypeException(param);
+                : throw CommandParameter<T>.CreateInvalidTypeException(param!);
         };
     }
 }

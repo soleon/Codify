@@ -72,7 +72,7 @@ public class ExpandableNotificationObject : NotificationObject
     {
     }
 
-    private void ObserveAsyncHook(Task task)
+    private void ObserveAsyncHook(Task? task)
     {
         if (task == null || task.IsCompletedSuccessfully)
         {

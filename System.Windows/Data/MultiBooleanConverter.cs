@@ -8,17 +8,26 @@ public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, IMul
 {
     private static readonly BooleanConverter BooleanConverter = StaticInstance<BooleanConverter>.Instance;
 
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture)
     {
-        var results = values.Select(v => BooleanConverter.Convert(v)).ToList();
+        foreach (var value in values)
+        {
+            var result = BooleanConverter.Convert(value);
+            if (result == DependencyProperty.UnsetValue)
+            {
+                return DependencyProperty.UnsetValue;
+            }
 
-        if (results.Contains(DependencyProperty.UnsetValue)) return DependencyProperty.UnsetValue;
+            if (!Equals(result, true))
+            {
+                return parameter ?? false;
+            }
+        }
 
-        var result = results.All(x => Equals(x, true));
-        return result ? true : parameter ?? false;
+        return true;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    public object[]? ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
     {
         return null;
     }

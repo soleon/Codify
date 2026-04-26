@@ -6,7 +6,7 @@ namespace Codify.System.Collections.ObjectModel;
 
 public class BatchObservableCollection<T> : ObservableCollection<T>
 {
-    private readonly object _collectionUpdateLock = new();
+    private readonly global::System.Threading.Lock _collectionUpdateLock = new();
 
     private readonly PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
 

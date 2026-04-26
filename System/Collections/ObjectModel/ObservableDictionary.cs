@@ -1,12 +1,14 @@
 ﻿namespace Codify.System.Collections.ObjectModel;
 
 public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
+    where TKey : notnull
 {
     private static readonly EqualityComparer<TKey> KeyComparer = EqualityComparer<TKey>.Default;
     private static readonly EqualityComparer<TValue> ValueComparer = EqualityComparer<TValue>.Default;
 
     private readonly Dictionary<TKey, TValue> _dictionary = new();
     private readonly Func<TValue, TKey> _getKey;
+    private readonly global::System.Threading.Lock _syncRoot = new();
 
     public ObservableDictionary(Func<TValue, TKey> keyProvider)
     {
@@ -22,7 +24,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             Add(item.Key, item.Value);
         }
@@ -30,7 +32,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             return Contains(item);
         }
@@ -38,7 +40,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).CopyTo(array, arrayIndex);
         }
@@ -46,7 +48,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             return Contains(item) && Remove(item.Key);
         }
@@ -56,7 +58,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     public void Add(TKey key, TValue value)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             var itemKey = GetValidatedItemKey(key, value);
             InsertItem(Count, itemKey, value);
@@ -65,7 +67,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     public bool ContainsKey(TKey key)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             return _dictionary.ContainsKey(key);
         }
@@ -73,7 +75,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     public bool Remove(TKey key)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             if (!_dictionary.TryGetValue(key, out var item))
             {
@@ -92,9 +94,11 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
-    public bool TryGetValue(TKey key, out TValue value)
+    public bool TryGetValue(
+        TKey key,
+        [global::System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out TValue value)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             return _dictionary.TryGetValue(key, out value);
         }
@@ -104,14 +108,14 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     {
         get
         {
-            lock (_dictionary)
+            lock (_syncRoot)
             {
                 return _dictionary[key];
             }
         }
         set
         {
-            lock (_dictionary)
+            lock (_syncRoot)
             {
                 var itemKey = GetValidatedItemKey(key, value);
                 if (!_dictionary.TryGetValue(key, out var item))
@@ -137,7 +141,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     {
         get
         {
-            lock (_dictionary)
+            lock (_syncRoot)
             {
                 return _dictionary.Keys;
             }
@@ -148,7 +152,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     {
         get
         {
-            lock (_dictionary)
+            lock (_syncRoot)
             {
                 return _dictionary.Values;
             }
@@ -157,7 +161,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     protected override void ClearItems()
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             _dictionary.Clear();
             base.ClearItems();
@@ -166,7 +170,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     protected override void InsertItem(int index, TValue item)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             InsertItem(index, _getKey(item), item);
         }
@@ -174,7 +178,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     protected override void RemoveItem(int index)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             RemoveDictionaryEntry(Items[index]);
             base.RemoveItem(index);
@@ -183,7 +187,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     protected override void SetItem(int index, TValue item)
     {
-        lock (_dictionary)
+        lock (_syncRoot)
         {
             SetItem(index, _getKey(Items[index]), _getKey(item), item);
         }
@@ -279,7 +283,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
             return;
         }
 
-        var keyToRemove = default(TKey);
+        TKey? keyToRemove = default;
         var shouldRemove = false;
         foreach (var pair in _dictionary)
         {
@@ -293,7 +297,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
         if (shouldRemove)
         {
-            _dictionary.Remove(keyToRemove);
+            _dictionary.Remove(keyToRemove!);
         }
     }
 }

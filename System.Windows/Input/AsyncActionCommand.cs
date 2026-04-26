@@ -2,9 +2,9 @@
 
 public sealed class AsyncActionCommand : AsyncCommand
 {
-    public AsyncActionCommand(Func<Task> execute, Func<bool> canExecute = null)
+    public AsyncActionCommand(Func<Task> execute, Func<bool>? canExecute = null)
     {
-        if (execute == null) throw new ArgumentNullException(nameof(execute));
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteFunc = _ => CanExecute(null) ? execute() : Task.CompletedTask;
         CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
@@ -13,9 +13,9 @@ public sealed class AsyncActionCommand : AsyncCommand
 
 public sealed class AsyncActionCommand<T> : AsyncCommand
 {
-    public AsyncActionCommand(Func<T, Task> execute, Func<T, bool> canExecute = null)
+    public AsyncActionCommand(Func<T, Task> execute, Func<T, bool>? canExecute = null)
     {
-        if (execute == null) throw new ArgumentNullException(nameof(execute));
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteFunc = param =>
         {
@@ -26,7 +26,7 @@ public sealed class AsyncActionCommand<T> : AsyncCommand
 
             return CommandParameter<T>.IsNullInvalid(param)
                 ? Task.CompletedTask
-                : throw CommandParameter<T>.CreateInvalidTypeException(param);
+                : throw CommandParameter<T>.CreateInvalidTypeException(param!);
         };
 
         CanExecuteFunc = param =>
@@ -38,7 +38,7 @@ public sealed class AsyncActionCommand<T> : AsyncCommand
 
             return CommandParameter<T>.IsNullInvalid(param)
                 ? false
-                : throw CommandParameter<T>.CreateInvalidTypeException(param);
+                : throw CommandParameter<T>.CreateInvalidTypeException(param!);
         };
     }
 }

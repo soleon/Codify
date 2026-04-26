@@ -37,6 +37,7 @@ Codify is a generic WPF and .NET library. These instructions apply to all AI age
 - Prefer nullable-safe, analyzer-friendly, idiomatic modern C#.
 - Keep public APIs stable, documented where useful, and suitable for reuse by external consumers.
 - Avoid global state and hidden side effects unless they are required by platform constraints.
+- Because the core library namespace is `Codify.System`, fully qualify BCL `System.*` types as `global::System.*` when referenced from inside that namespace and the compiler could otherwise resolve them under `Codify.System`.
 
 ## Testing Policy
 

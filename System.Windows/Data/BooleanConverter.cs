@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Collections.Concurrent;
 using System.Windows;
 using System.Windows.Data;
 
@@ -6,7 +7,9 @@ namespace Codify.System.Windows.Data;
 
 public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverter
 {
-    public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
+    private static readonly ConcurrentDictionary<Type, object?> DefaultValues = new();
+
+    public object Convert(object? value, Type? targetType = null, object? parameter = null, CultureInfo? culture = null)
     {
         if (value == DependencyProperty.UnsetValue) return value;
 
@@ -19,17 +22,23 @@ public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverte
             case null:
                 return isInvert;
             default:
-            {
-                var type = value.GetType();
-                return type.IsValueType
-                    ? Equals(Activator.CreateInstance(type), value) ? isInvert : !isInvert
-                    : !isInvert;
-            }
+                return IsDefaultValue(value) ? isInvert : !isInvert;
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
+    }
+
+    private static object? GetDefaultValue(Type type)
+    {
+        return DefaultValues.GetOrAdd(type, static valueType => Activator.CreateInstance(valueType));
+    }
+
+    private static bool IsDefaultValue(object value)
+    {
+        var type = value.GetType();
+        return type.IsValueType && Equals(GetDefaultValue(type), value);
     }
 }

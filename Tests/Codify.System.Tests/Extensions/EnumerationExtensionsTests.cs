@@ -28,6 +28,16 @@ public class EnumerationExtensionsTests
     }
 
     [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void BatchRejectsNonPositiveBatchSize(int batchSize)
+    {
+        var source = Enumerable.Range(1, 3);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => source.Batch(batchSize).ToArray());
+    }
+
+    [Theory]
     [InlineData(0, 0)]
     [InlineData(2, 1)]
     [InlineData(4, 2)]

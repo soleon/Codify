@@ -17,7 +17,7 @@ public class AsyncActionCommandTests
         Assert.True(command.CanExecute(null!));
         command.Execute(null!);
 
-        await executed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await executed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class AsyncActionCommandTests
         Assert.True(command.CanExecute(null!));
         command.Execute(null!);
 
-        Assert.Null(await executed.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+        Assert.Null(await executed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class AsyncActionCommandTests
         try
         {
             execute();
-            return await context.ExceptionTask.WaitAsync(TimeSpan.FromSeconds(5));
+            return await context.ExceptionTask.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         }
         finally
         {

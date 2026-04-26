@@ -2,10 +2,10 @@
 
 public abstract class AsyncCommand : Command
 {
-    protected Func<object, Task> ExecuteFunc;
+    protected Func<object?, Task>? ExecuteFunc;
 
-    public override async void Execute(object parameter)
+    public override async void Execute(object? parameter)
     {
-        if (CanExecute(parameter)) await ExecuteFunc(parameter);
+        if (CanExecute(parameter) && ExecuteFunc is { } executeFunc) await executeFunc(parameter);
     }
 }

@@ -4,14 +4,14 @@ namespace Codify.System.Windows.Controls;
 
 public abstract class WindowViewModel<T> : ViewModel<T> where T : Window, new()
 {
-    public bool? ShowDialog(Window owner = null)
+    public bool? ShowDialog(Window? owner = null)
     {
         var window = View;
         window.Owner = owner;
         return window.ShowDialog();
     }
 
-    public void Show(Window owner = null)
+    public void Show(Window? owner = null)
     {
         var window = View;
         window.Owner = owner;
@@ -37,7 +37,7 @@ public abstract class WindowViewModel<T> : ViewModel<T> where T : Window, new()
     {
         var window = base.CreateNewView();
 
-        void OnClosed(object _, EventArgs __)
+        void OnClosed(object? _, EventArgs __)
         {
             window.Closed -= OnClosed;
             OnUnload();

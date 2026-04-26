@@ -48,22 +48,25 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
         ClearItems();
     }
 
-    private void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void OnSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
+                ArgumentNullException.ThrowIfNull(e.NewItems);
                 var newIndex = e.NewStartingIndex;
                 foreach (TSource item in e.NewItems) InsertItem(newIndex >= Count ? Count : newIndex, _converter(item));
 
                 break;
             case NotifyCollectionChangedAction.Remove:
+                ArgumentNullException.ThrowIfNull(e.OldItems);
                 var oldIndex = e.OldStartingIndex;
                 foreach (var _ in e.OldItems) RemoveItem(oldIndex++);
 
                 break;
             case NotifyCollectionChangedAction.Replace:
-                SetItem(e.NewStartingIndex, _converter((TSource)e.NewItems[0]));
+                ArgumentNullException.ThrowIfNull(e.NewItems);
+                SetItem(e.NewStartingIndex, _converter((TSource)e.NewItems[0]!));
                 break;
             case NotifyCollectionChangedAction.Reset:
                 ClearItems();

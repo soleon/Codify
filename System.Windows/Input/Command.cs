@@ -4,16 +4,16 @@ namespace Codify.System.Windows.Input;
 
 public abstract class Command : ICommand
 {
-    protected Func<object, bool> CanExecuteFunc;
+    protected Func<object?, bool>? CanExecuteFunc;
 
-    public bool CanExecute(object parameter)
+    public bool CanExecute(object? parameter)
     {
         return CanExecuteFunc == null || CanExecuteFunc(parameter);
     }
 
-    public abstract void Execute(object parameter);
+    public abstract void Execute(object? parameter);
 
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
 
     public void NotifyCanExecuteChanged()
     {
@@ -25,7 +25,7 @@ internal static class CommandParameter<T>
 {
     private static readonly bool AcceptsNull = default(T) is null;
 
-    public static bool TryGetValue(object parameter, out T value)
+    public static bool TryGetValue(object? parameter, out T value)
     {
         if (parameter is T typedValue)
         {
@@ -35,15 +35,15 @@ internal static class CommandParameter<T>
 
         if (parameter == null && AcceptsNull)
         {
-            value = default;
+            value = default!;
             return true;
         }
 
-        value = default;
+        value = default!;
         return false;
     }
 
-    public static bool IsNullInvalid(object parameter)
+    public static bool IsNullInvalid(object? parameter)
     {
         return parameter == null && !AcceptsNull;
     }

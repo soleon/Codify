@@ -59,7 +59,9 @@ public class ExpandableNotificationObjectTests
         var target = FaultingExpandableNotificationObject.ForExpansion(expectedException);
 
         var setterException = Record.Exception(() => target.IsExpanded = true);
-        var observedException = await target.ObservedException.WaitAsync(TimeSpan.FromSeconds(5));
+        var observedException = await target.ObservedException.WaitAsync(
+            TimeSpan.FromSeconds(5),
+            TestContext.Current.CancellationToken);
 
         Assert.Null(setterException);
         Assert.Same(expectedException, observedException);
@@ -72,7 +74,9 @@ public class ExpandableNotificationObjectTests
         var target = FaultingExpandableNotificationObject.ForSelection(expectedException);
 
         var setterException = Record.Exception(() => target.IsSelected = true);
-        var observedException = await target.ObservedException.WaitAsync(TimeSpan.FromSeconds(5));
+        var observedException = await target.ObservedException.WaitAsync(
+            TimeSpan.FromSeconds(5),
+            TestContext.Current.CancellationToken);
 
         Assert.Null(setterException);
         Assert.Same(expectedException, observedException);
