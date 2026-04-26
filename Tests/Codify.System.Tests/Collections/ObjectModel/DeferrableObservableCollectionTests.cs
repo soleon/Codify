@@ -4,12 +4,12 @@ using Codify.System.Collections.ObjectModel;
 
 namespace Codify.System.Tests.Collections.ObjectModel;
 
-public class BatchObservableCollectionTests
+public class DeferrableObservableCollectionTests
 {
     [Fact]
     public void CollectionChangesOutsideUpdateRaiseNormalNotifications()
     {
-        var collection = new BatchObservableCollection<int>();
+        var collection = new DeferrableObservableCollection<int>();
         var collectionEvents = TrackCollectionChanges(collection);
         var propertyNames = TrackPropertyChanges(collection);
 
@@ -25,7 +25,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void BeginUpdateSuppressesIntermediateNotificationsUntilDisposed()
     {
-        var collection = new BatchObservableCollection<int> { 1 };
+        var collection = new DeferrableObservableCollection<int> { 1 };
         var collectionEvents = TrackCollectionChanges(collection);
         var propertyNames = TrackPropertyChanges(collection);
 
@@ -47,7 +47,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void CompletedUpdateWithoutChangesDoesNotRaiseResetNotification()
     {
-        var collection = new BatchObservableCollection<int> { 1 };
+        var collection = new DeferrableObservableCollection<int> { 1 };
         var collectionEvents = TrackCollectionChanges(collection);
         var propertyNames = TrackPropertyChanges(collection);
 
@@ -63,7 +63,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void CompletedUpdateRaisesIndexerPropertyNotification()
     {
-        var collection = new BatchObservableCollection<int> { 1 };
+        var collection = new DeferrableObservableCollection<int> { 1 };
         var propertyNames = TrackPropertyChanges(collection);
 
         using (collection.BeginUpdate())
@@ -77,7 +77,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void BeginUpdateReturnsHandleThatCanBeDisposedExplicitly()
     {
-        var collection = new BatchObservableCollection<int>();
+        var collection = new DeferrableObservableCollection<int>();
         var collectionEvents = TrackCollectionChanges(collection);
 
         var update = collection.BeginUpdate();
@@ -92,7 +92,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void NestedUpdatesSuppressNotificationsUntilOutermostHandleIsDisposed()
     {
-        var collection = new BatchObservableCollection<int> { 1 };
+        var collection = new DeferrableObservableCollection<int> { 1 };
         var collectionEvents = TrackCollectionChanges(collection);
         var propertyNames = TrackPropertyChanges(collection);
 
@@ -120,7 +120,7 @@ public class BatchObservableCollectionTests
     [Fact]
     public void DisposingUpdateHandleMoreThanOnceRaisesOneResetNotification()
     {
-        var collection = new BatchObservableCollection<int>();
+        var collection = new DeferrableObservableCollection<int>();
         var collectionEvents = TrackCollectionChanges(collection);
         var propertyNames = TrackPropertyChanges(collection);
 
@@ -136,14 +136,14 @@ public class BatchObservableCollectionTests
     }
 
     private static List<NotifyCollectionChangedEventArgs> TrackCollectionChanges<T>(
-        BatchObservableCollection<T> collection)
+        DeferrableObservableCollection<T> collection)
     {
         var events = new List<NotifyCollectionChangedEventArgs>();
         collection.CollectionChanged += (_, args) => events.Add(args);
         return events;
     }
 
-    private static List<string?> TrackPropertyChanges<T>(BatchObservableCollection<T> collection)
+    private static List<string?> TrackPropertyChanges<T>(DeferrableObservableCollection<T> collection)
     {
         var propertyNames = new List<string?>();
         ((INotifyPropertyChanged)collection).PropertyChanged += (_, args) => propertyNames.Add(args.PropertyName);

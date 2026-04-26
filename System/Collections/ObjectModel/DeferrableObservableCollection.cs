@@ -1,10 +1,10 @@
 namespace Codify.System.Collections.ObjectModel;
 
 /// <summary>
-/// Provides an observable collection that can suppress intermediate notifications during a batch update.
+/// Provides an observable collection that can defer intermediate change notifications during update scopes.
 /// </summary>
 /// <typeparam name="T">The type of items in the collection.</typeparam>
-public class BatchObservableCollection<T> : global::System.Collections.ObjectModel.ObservableCollection<T>
+public class DeferrableObservableCollection<T> : global::System.Collections.ObjectModel.ObservableCollection<T>
 {
     private readonly global::System.Threading.Lock _collectionUpdateLock = new();
 
@@ -17,10 +17,10 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     private int _updateDepth;
 
     /// <summary>
-    /// Begins a batch update and returns a handle that ends the update when disposed.
+    /// Begins an update scope and returns a handle that ends the scope when disposed.
     /// </summary>
     /// <returns>
-    /// A disposable handle that raises a reset notification after the update completes.
+    /// A disposable handle that raises a reset notification after the update scope completes.
     /// </returns>
     public global::System.IDisposable BeginUpdate()
     {
@@ -33,7 +33,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     }
 
     /// <summary>
-    /// Raises a property change notification unless a batch update is active.
+    /// Raises a property change notification unless an update scope is active.
     /// </summary>
     /// <param name="e">The property change data.</param>
     protected override void OnPropertyChanged(global::System.ComponentModel.PropertyChangedEventArgs e)
@@ -79,7 +79,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     }
 
     /// <summary>
-    /// Raises a collection change notification unless a batch update is active.
+    /// Raises a collection change notification unless an update scope is active.
     /// </summary>
     /// <param name="e">The collection change data.</param>
     protected override void OnCollectionChanged(global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -98,11 +98,11 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
     private sealed class CollectionUpdateHandle : global::System.IDisposable
     {
-        private readonly BatchObservableCollection<T> _collection;
+        private readonly DeferrableObservableCollection<T> _collection;
 
         private int _isDisposed;
 
-        internal CollectionUpdateHandle(in BatchObservableCollection<T> collection)
+        internal CollectionUpdateHandle(in DeferrableObservableCollection<T> collection)
         {
             _collection = collection;
         }

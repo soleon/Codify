@@ -6,7 +6,7 @@
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the collection.</typeparam>
 public class ObservableDictionary<TKey, TValue> :
-    BatchObservableCollection<TValue>,
+    DeferrableObservableCollection<TValue>,
     global::System.Collections.Generic.IDictionary<TKey, TValue>
     where TKey : notnull
 {
