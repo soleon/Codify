@@ -22,6 +22,20 @@ public class VisibilityConverterTests
         Assert.Equal(expected, result);
     }
 
+    [Theory]
+    [InlineData(null, null, Visibility.Collapsed)]
+    [InlineData(null, "invert", Visibility.Visible)]
+    public void ConvertMapsNullValuesThroughBooleanConverter(object? value, string? parameter, Visibility expected)
+    {
+        var result = VisibilityConverter.Instance.Convert(
+            value,
+            typeof(Visibility),
+            parameter!,
+            CultureInfo.InvariantCulture);
+
+        Assert.Equal(expected, result);
+    }
+
     [Fact]
     public void ConvertReturnsUnsetValueUnchanged()
     {

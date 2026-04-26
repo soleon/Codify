@@ -33,4 +33,12 @@ public class EqualityConverterTests
 
         Assert.Same(DependencyProperty.UnsetValue, result);
     }
+
+    [Fact]
+    public void ConvertBackReturnsUnsetValueWhenValueIsNonBooleanTrue()
+    {
+        var result = EqualityConverter.Instance.ConvertBack("true", null!, "parameter", CultureInfo.InvariantCulture);
+
+        Assert.Same(DependencyProperty.UnsetValue, result);
+    }
 }

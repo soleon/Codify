@@ -21,6 +21,13 @@ public class AsyncActionCommandTests
     }
 
     [Fact]
+    public void ConstructorRejectsNullExecuteFunc()
+    {
+        Assert.Throws<ArgumentNullException>(() => new AsyncActionCommand(null!));
+        Assert.Throws<ArgumentNullException>(() => new AsyncActionCommand<int>(null!));
+    }
+
+    [Fact]
     public void NonGenericCommandDoesNotExecuteWhenDisabled()
     {
         var executed = false;
@@ -80,6 +87,46 @@ public class AsyncActionCommandTests
 
         Assert.False(command.CanExecute(null!));
         command.Execute(null!);
+
+        Assert.False(executed);
+    }
+
+    [Fact]
+    public async Task GenericCommandPassesValidParameterToPredicateAndExecuteFunc()
+    {
+        var receivedByPredicate = 0;
+        var executed = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var command = new AsyncActionCommand<int>(
+            value =>
+            {
+                executed.SetResult(value);
+                return Task.CompletedTask;
+            },
+            value =>
+            {
+                receivedByPredicate = value;
+                return true;
+            });
+
+        Assert.True(command.CanExecute(42));
+        command.Execute(42);
+
+        Assert.Equal(42, receivedByPredicate);
+        Assert.Equal(42, await executed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public void GenericCommandDoesNotExecuteValidParameterWhenDisabled()
+    {
+        var executed = false;
+        var command = new AsyncActionCommand<int>(_ =>
+        {
+            executed = true;
+            return Task.CompletedTask;
+        }, _ => false);
+
+        Assert.False(command.CanExecute(42));
+        command.Execute(42);
 
         Assert.False(executed);
     }

@@ -246,7 +246,44 @@ dotnet test Codify.slnx --no-build
 
 ### 4. Add Remaining Public Behavior Test Coverage
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Added focused public behavior coverage for `StaticInstance<T>`,
+  `BatchObservableCollection<T>`, `WindowViewModel<T>`, command lifecycle
+  behavior, and converter edge cases.
+- Fixed the `BatchObservableCollection<T>` defect exposed by the new tests:
+  nested update handles now suppress notifications until the outermost handle
+  is disposed, and disposing the same update handle more than once is
+  idempotent.
+
+Verification:
+
+```powershell
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter BatchObservableCollectionTests
+# Red before implementation: failed 2 tests for nested update notification timing and duplicate reset notifications.
+# Green after implementation: passed with 5 tests passed, 0 failed, 0 skipped.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore
+# Passed: 60 tests passed, 0 failed, 0 skipped.
+
+dotnet test Tests\Codify.System.Windows.Tests\Codify.System.Windows.Tests.csproj --no-restore
+# Passed: 55 tests passed, 0 failed, 0 skipped.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: 115 tests passed, 0 failed, 0 skipped.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed: exited with no formatting changes.
+
+git diff --check
+# Passed; Git printed line-ending normalization warnings.
+```
 
 Primary areas:
 

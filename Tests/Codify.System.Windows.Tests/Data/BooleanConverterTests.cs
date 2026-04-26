@@ -30,6 +30,13 @@ public class BooleanConverterTests
     }
 
     [Fact]
+    public void ConvertUsesCaseInsensitiveInvertParameterForValueTypes()
+    {
+        Assert.True((bool)BooleanConverter.Instance.Convert(0, null!, "INVERT", CultureInfo.InvariantCulture));
+        Assert.False((bool)BooleanConverter.Instance.Convert(7, null!, "INVERT", CultureInfo.InvariantCulture));
+    }
+
+    [Fact]
     public void ConvertTreatsReferenceValuesAsTrue()
     {
         var value = new object();

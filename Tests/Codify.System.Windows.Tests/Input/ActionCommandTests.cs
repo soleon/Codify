@@ -17,6 +17,34 @@ public class ActionCommandTests
     }
 
     [Fact]
+    public void ConstructorRejectsNullExecuteAction()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ActionCommand(null!));
+        Assert.Throws<ArgumentNullException>(() => new ActionCommand<int>(null!));
+    }
+
+    [Fact]
+    public void NotifyCanExecuteChangedRaisesEventWithCommandSender()
+    {
+        var command = new ActionCommand(() => { });
+        object? sender = null;
+        EventArgs? eventArgs = null;
+        var eventCount = 0;
+        command.CanExecuteChanged += (s, e) =>
+        {
+            sender = s;
+            eventArgs = e;
+            eventCount++;
+        };
+
+        command.NotifyCanExecuteChanged();
+
+        Assert.Equal(1, eventCount);
+        Assert.Same(command, sender);
+        Assert.Same(EventArgs.Empty, eventArgs);
+    }
+
+    [Fact]
     public void NonGenericCommandDoesNotExecuteWhenDisabled()
     {
         var executed = false;
@@ -62,6 +90,26 @@ public class ActionCommandTests
         command.Execute(null!);
 
         Assert.False(executed);
+    }
+
+    [Fact]
+    public void GenericCommandPassesValidParameterToPredicateAndExecuteAction()
+    {
+        var receivedByPredicate = 0;
+        var receivedByExecute = 0;
+        var command = new ActionCommand<int>(
+            value => receivedByExecute = value,
+            value =>
+            {
+                receivedByPredicate = value;
+                return true;
+            });
+
+        Assert.True(command.CanExecute(42));
+        command.Execute(42);
+
+        Assert.Equal(42, receivedByPredicate);
+        Assert.Equal(42, receivedByExecute);
     }
 
     [Fact]

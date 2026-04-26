@@ -59,6 +59,52 @@ public class BatchObservableCollectionTests
         Assert.Equal([1], collection);
     }
 
+    [Fact]
+    public void NestedUpdatesSuppressNotificationsUntilOutermostHandleIsDisposed()
+    {
+        var collection = new BatchObservableCollection<int> { 1 };
+        var collectionEvents = TrackCollectionChanges(collection);
+        var propertyNames = TrackPropertyChanges(collection);
+
+        using (var outerUpdate = collection.BeginUpdate())
+        {
+            collection.Add(2);
+
+            using (collection.BeginUpdate())
+            {
+                collection.Add(3);
+            }
+
+            Assert.Empty(collectionEvents);
+            Assert.Empty(propertyNames);
+
+            outerUpdate.Dispose();
+        }
+
+        var collectionEvent = Assert.Single(collectionEvents);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, collectionEvent.Action);
+        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal([1, 2, 3], collection);
+    }
+
+    [Fact]
+    public void DisposingUpdateHandleMoreThanOnceRaisesOneResetNotification()
+    {
+        var collection = new BatchObservableCollection<int>();
+        var collectionEvents = TrackCollectionChanges(collection);
+        var propertyNames = TrackPropertyChanges(collection);
+
+        var update = collection.BeginUpdate();
+        collection.Add(1);
+
+        update.Dispose();
+        update.Dispose();
+
+        Assert.Single(collectionEvents);
+        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal([1], collection);
+    }
+
     private static List<NotifyCollectionChangedEventArgs> TrackCollectionChanges<T>(
         BatchObservableCollection<T> collection)
     {

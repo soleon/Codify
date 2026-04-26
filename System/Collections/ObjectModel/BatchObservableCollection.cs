@@ -10,7 +10,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
     private readonly global::System.ComponentModel.PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
 
-    private bool _isUpdating;
+    private int _updateDepth;
 
     /// <summary>
     /// Begins a batch update and returns a handle that ends the update when disposed.
@@ -22,7 +22,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     {
         lock (_collectionUpdateLock)
         {
-            _isUpdating = true;
+            _updateDepth++;
         }
 
         return new CollectionUpdateHandle(this);
@@ -34,7 +34,12 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     /// <param name="e">The property change data.</param>
     protected override void OnPropertyChanged(global::System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (!_isUpdating) base.OnPropertyChanged(e);
+        lock (_collectionUpdateLock)
+        {
+            if (_updateDepth > 0) return;
+        }
+
+        base.OnPropertyChanged(e);
     }
 
     private void NotifyCollectionChanged(global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -44,10 +49,15 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
     private void EndUpdate()
     {
+        bool shouldNotify;
+
         lock (_collectionUpdateLock)
         {
-            _isUpdating = false;
+            _updateDepth--;
+            shouldNotify = _updateDepth == 0;
         }
+
+        if (!shouldNotify) return;
 
         NotifyCollectionChanged(
             new global::System.Collections.Specialized.NotifyCollectionChangedEventArgs(
@@ -63,7 +73,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     {
         lock (_collectionUpdateLock)
         {
-            if (_isUpdating) return;
+            if (_updateDepth > 0) return;
         }
 
         NotifyCollectionChanged(e);
@@ -73,6 +83,8 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     {
         private readonly BatchObservableCollection<T> _collection;
 
+        private int _isDisposed;
+
         internal CollectionUpdateHandle(in BatchObservableCollection<T> collection)
         {
             _collection = collection;
@@ -80,7 +92,10 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
         public void Dispose()
         {
-            _collection.EndUpdate();
+            if (global::System.Threading.Interlocked.Exchange(ref _isDisposed, 1) == 0)
+            {
+                _collection.EndUpdate();
+            }
         }
     }
 }

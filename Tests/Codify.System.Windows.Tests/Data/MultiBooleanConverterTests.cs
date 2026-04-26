@@ -19,6 +19,18 @@ public class MultiBooleanConverterTests
     }
 
     [Fact]
+    public void ConvertReturnsTrueForEmptyValueSet()
+    {
+        var result = MultiBooleanConverter.Instance.Convert(
+            [],
+            null!,
+            "fallback",
+            CultureInfo.InvariantCulture);
+
+        Assert.True((bool)result);
+    }
+
+    [Fact]
     public void ConvertReturnsFalseParameterWhenAnyValueConvertsToFalse()
     {
         var result = MultiBooleanConverter.Instance.Convert(
