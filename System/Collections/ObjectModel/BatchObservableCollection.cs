@@ -53,7 +53,7 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
         NotifyCollectionChanged(e);
     }
 
-    private class CollectionUpdateHandle : IDisposable
+    private sealed class CollectionUpdateHandle : IDisposable
     {
         private readonly BatchObservableCollection<T> _collection;
 

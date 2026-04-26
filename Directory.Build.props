@@ -1,0 +1,55 @@
+<Project>
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'System' Or '$(MSBuildProjectName)' == 'Codify.System.Tests'">
+        <TargetFramework>net10.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'System.Windows' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>10.0-recommended</AnalysisLevel>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <Authors>Long Zhou</Authors>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/soleon/Codify</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/soleon/Codify</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'System' Or '$(MSBuildProjectName)' == 'System.Windows'">
+        <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Codify.System.Tests' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(MSBuildProjectName)' == 'System' Or '$(MSBuildProjectName)' == 'System.Windows'">
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(MSBuildProjectName)' == 'Codify.System.Tests' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
+        <PackageReference Include="coverlet.collector" Version="10.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(MSBuildProjectName)' == 'Codify.System.Tests' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
+        <Using Include="Xunit" />
+    </ItemGroup>
+</Project>

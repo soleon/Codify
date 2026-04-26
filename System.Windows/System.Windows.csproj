@@ -1,22 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWPF>true</UseWPF>
-        <AssemblyName>Codify.$(MSBuildProjectName)</AssemblyName>
-        <RootNamespace>$(AssemblyName)</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Authors>Long Zhou</Authors>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Version>1.0.9</Version>
-        <PackageProjectUrl>https://github.com/soleon/Codify</PackageProjectUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <ImplicitUsings>true</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Description>WPF controls, converters, and command helpers for Codify applications.</Description>
+        <PackageTags>codify;wpf;commands;converters;mvvm</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\System\System.csproj"/>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <ProjectReference Include="..\System\System.csproj" />
     </ItemGroup>
 </Project>

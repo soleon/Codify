@@ -36,6 +36,7 @@ Codify is a generic WPF and .NET library. These instructions apply to all AI age
 - Preserve WPF binding behavior, dependency property semantics, resource lookup behavior, and design-time usability.
 - Prefer nullable-safe, analyzer-friendly, idiomatic modern C#.
 - Keep public APIs stable, documented where useful, and suitable for reuse by external consumers.
+- All public-facing types and members must have full XML documentation coverage.
 - Avoid global state and hidden side effects unless they are required by platform constraints.
 - Because the core library namespace is `Codify.System`, fully qualify BCL `System.*` types as `global::System.*` when referenced from inside that namespace and the compiler could otherwise resolve them under `Codify.System`.
 
@@ -60,6 +61,11 @@ When reviewing changes, prioritize findings in this order:
 7. maintainability and best-practice issues
 
 Do not prefix review findings with bracketed severity labels such as `[P0]`, `[P1]`, `[P2]`, or `[P3]`.
+
+## Tooling Notes
+
+- Do not run `dotnet build`, `dotnet test`, `dotnet pack`, or `dotnet format` concurrently against the same solution or projects; shared `obj/` outputs can lock and cause transient MSBuild/CSC failures.
+- When intentionally deleting a tracked file that already has staged edits, `git rm` may refuse the deletion; after confirming the deletion is intended, use `git rm -f -- <path>`.
 
 ## Required Final Checklist
 

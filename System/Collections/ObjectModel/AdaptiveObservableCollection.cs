@@ -46,6 +46,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
     {
         _sourceCollection.CollectionChanged -= OnSourceCollectionChanged;
         ClearItems();
+        global::System.GC.SuppressFinalize(this);
     }
 
     private void OnSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -78,7 +79,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
 
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(e), e.Action, "Unsupported collection change action.");
         }
     }
 

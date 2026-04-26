@@ -15,9 +15,9 @@ public class ObservableDictionaryTests
 
         Assert.True(dictionary.ContainsKey(1));
         Assert.Same(item, dictionary[1]);
-        Assert.Collection(GetValues(dictionary), value => Assert.Same(item, value));
-        Assert.Equal(new[] { 1 }, dictionary.Keys);
-        Assert.Equal(new[] { item }, dictionary.Values);
+        Assert.Collection((IEnumerable<TestItem>)dictionary, value => Assert.Same(item, value));
+        Assert.Collection(dictionary.Keys, key => Assert.Equal(1, key));
+        Assert.Collection(dictionary.Values, value => Assert.Same(item, value));
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class ObservableDictionaryTests
 
         Assert.True(dictionary.TryGetValue(1, out var value));
         Assert.Same(item, value);
-        Assert.Same(item, GetValues(dictionary).Single());
+        Assert.Same(item, ((IEnumerable<TestItem>)dictionary).Single());
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class ObservableDictionaryTests
         Assert.True(removed);
         Assert.True(dictionary.ContainsKey(1));
         Assert.False(dictionary.ContainsKey(2));
-        Assert.Collection(GetValues(dictionary), value => Assert.Same(first, value));
+        Assert.Collection((IEnumerable<EqualByGroupItem>)dictionary, value => Assert.Same(first, value));
         Assert.Same(first, dictionary[1]);
     }
 
@@ -214,7 +214,7 @@ public class ObservableDictionaryTests
 
         Assert.False(dictionary.ContainsKey(1));
         Assert.True(dictionary.ContainsKey(2));
-        Assert.Collection(GetValues(dictionary), value => Assert.Same(second, value));
+        Assert.Collection((IEnumerable<TestItem>)dictionary, value => Assert.Same(second, value));
     }
 
     [Fact]
@@ -278,11 +278,6 @@ public class ObservableDictionaryTests
     private static ObservableDictionary<int, TestItem> CreateDictionary()
     {
         return CreateDictionary<TestItem>();
-    }
-
-    private static IEnumerable<TItem> GetValues<TItem>(ObservableDictionary<int, TItem> dictionary)
-    {
-        return dictionary;
     }
 
     private static TItem GetValueAt<TItem>(ObservableDictionary<int, TItem> dictionary, int index)
