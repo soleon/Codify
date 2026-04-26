@@ -1,5 +1,10 @@
 ﻿namespace Codify.System.Collections.ObjectModel;
 
+/// <summary>
+/// Represents an observable collection whose items are also addressable by keys derived from each value.
+/// </summary>
+/// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+/// <typeparam name="TValue">The type of values in the collection.</typeparam>
 public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
     where TKey : notnull
 {
@@ -10,6 +15,10 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     private readonly Func<TValue, TKey> _getKey;
     private readonly global::System.Threading.Lock _syncRoot = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObservableDictionary{TKey,TValue}" /> class.
+    /// </summary>
+    /// <param name="keyProvider">The function that returns the dictionary key for a value.</param>
     public ObservableDictionary(Func<TValue, TKey> keyProvider)
     {
         ArgumentNullException.ThrowIfNull(keyProvider);
@@ -54,8 +63,19 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the dictionary is read-only.
+    /// </summary>
     public bool IsReadOnly { get; }
 
+    /// <summary>
+    /// Adds a value with the specified key.
+    /// </summary>
+    /// <param name="key">The key for the value.</param>
+    /// <param name="value">The value to add.</param>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="key" /> does not match the key produced from <paramref name="value" />.
+    /// </exception>
     public void Add(TKey key, TValue value)
     {
         lock (_syncRoot)
@@ -65,6 +85,11 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Determines whether the dictionary contains the specified key.
+    /// </summary>
+    /// <param name="key">The key to locate.</param>
+    /// <returns><see langword="true" /> if the key exists; otherwise, <see langword="false" />.</returns>
     public bool ContainsKey(TKey key)
     {
         lock (_syncRoot)
@@ -73,6 +98,11 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Removes the value with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to remove.</param>
+    /// <returns><see langword="true" /> if a value was removed; otherwise, <see langword="false" />.</returns>
     public bool Remove(TKey key)
     {
         lock (_syncRoot)
@@ -94,6 +124,15 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Gets the value associated with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to get.</param>
+    /// <param name="value">
+    /// When this method returns, contains the value associated with the specified key when found; otherwise, the
+    /// default value for <typeparamref name="TValue" />.
+    /// </param>
+    /// <returns><see langword="true" /> if the key was found; otherwise, <see langword="false" />.</returns>
     public bool TryGetValue(
         TKey key,
         [global::System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out TValue value)
@@ -104,6 +143,14 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Gets or sets the value associated with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to get or set.</param>
+    /// <returns>The value associated with <paramref name="key" />.</returns>
+    /// <exception cref="ArgumentException">
+    /// The assigned value produces a different key, or changing an item key would duplicate an existing key.
+    /// </exception>
     public TValue this[TKey key]
     {
         get
@@ -137,6 +184,9 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Gets a collection containing the dictionary keys.
+    /// </summary>
     public ICollection<TKey> Keys
     {
         get
@@ -148,6 +198,9 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Gets a collection containing the dictionary values.
+    /// </summary>
     public ICollection<TValue> Values
     {
         get
@@ -159,6 +212,9 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Removes all items from the collection and dictionary.
+    /// </summary>
     protected override void ClearItems()
     {
         lock (_syncRoot)
@@ -169,6 +225,11 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Inserts an item into the collection and dictionary at the specified index.
+    /// </summary>
+    /// <param name="index">The zero-based index at which to insert the item.</param>
+    /// <param name="item">The item to insert.</param>
     protected override void InsertItem(int index, TValue item)
     {
         lock (_syncRoot)
@@ -177,6 +238,10 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Removes the item at the specified index from the collection and dictionary.
+    /// </summary>
+    /// <param name="index">The zero-based index of the item to remove.</param>
     protected override void RemoveItem(int index)
     {
         lock (_syncRoot)
@@ -187,6 +252,11 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
+    /// <summary>
+    /// Replaces the item at the specified index and keeps the dictionary key mapping synchronized.
+    /// </summary>
+    /// <param name="index">The zero-based index of the item to replace.</param>
+    /// <param name="item">The replacement item.</param>
     protected override void SetItem(int index, TValue item)
     {
         lock (_syncRoot)

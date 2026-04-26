@@ -49,7 +49,7 @@ public static class EnumerationExtensions
     /// </param>
     /// <returns>The determined index of the specified item in a list according to the given compare function.</returns>
     /// <remarks>
-    ///     This method requires that the <see param="list" /> is already sorted for it to function properly.
+    ///     This method requires that <paramref name="list" /> is already sorted for it to function properly.
     /// </remarks>
     public static int ConditionalIndex<T>(this IList<T> list, T item, Func<T, T, int> comparer)
     {

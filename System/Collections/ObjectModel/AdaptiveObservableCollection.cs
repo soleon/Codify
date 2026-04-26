@@ -27,7 +27,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
     ///     The source collection to adapt to.
     /// </param>
     /// <param name="converter">
-    ///     The function used to convert <see cref="TSource" /> items to <see cref="TTarget" /> items.
+    ///     The function used to convert <typeparamref name="TSource" /> items to <typeparamref name="TTarget" /> items.
     /// </param>
     public AdaptiveObservableCollection(ObservableCollection<TSource> sourceCollection,
         Func<TSource, TTarget> converter)

@@ -45,7 +45,36 @@ Read AGENTS.md and AGENT_BACKLOG.md. Pick the next pending task only, implement 
 
 ### 1. Complete Public API XML Documentation
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Enabled XML documentation generation and XML documentation warning
+  enforcement for packable library projects.
+- Added meaningful XML documentation for public and protected APIs in
+  `System` and `System.Windows`, and fixed malformed type parameter cref usage.
+- Suppressed forced CS1591 noise for test projects when documentation
+  generation is enabled from the command line.
+
+Verification:
+
+```powershell
+dotnet build Codify.slnx /p:GenerateDocumentationFile=true
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: 93 tests passed, 0 failed, 0 skipped.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed after running dotnet format Codify.slnx --verbosity minimal to apply whitespace-only formatting.
+
+git diff --check
+# Passed; Git may print line-ending normalization warnings.
+```
 
 Primary files:
 

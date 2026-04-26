@@ -4,10 +4,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Codify.System.Windows.Controls;
 
+/// <summary>
+/// Provides a base view model that lazily creates and owns a WPF view.
+/// </summary>
+/// <typeparam name="T">The type of WPF element managed by the view model.</typeparam>
 public class ViewModel<T> : NotificationObject where T : FrameworkElement, new()
 {
     private T? _view;
 
+    /// <summary>
+    /// Gets or sets the view associated with this view model.
+    /// </summary>
     [AllowNull]
     public virtual T View
     {
@@ -24,6 +31,10 @@ public class ViewModel<T> : NotificationObject where T : FrameworkElement, new()
         }
     }
 
+    /// <summary>
+    /// Creates a new view instance and attaches this view model as its data context.
+    /// </summary>
+    /// <returns>The newly created view.</returns>
     protected virtual T CreateNewView()
     {
         var view = new T { DataContext = this };
@@ -44,10 +55,16 @@ public class ViewModel<T> : NotificationObject where T : FrameworkElement, new()
         OnUnload();
     }
 
+    /// <summary>
+    /// Called when the associated view is loaded.
+    /// </summary>
     protected virtual void OnLoad()
     {
     }
 
+    /// <summary>
+    /// Called when the associated view is unloaded.
+    /// </summary>
     protected virtual void OnUnload()
     {
     }

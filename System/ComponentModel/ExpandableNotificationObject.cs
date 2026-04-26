@@ -1,11 +1,17 @@
 ﻿namespace Codify.System.ComponentModel;
 
+/// <summary>
+/// Provides observable expanded and selected state with synchronous and asynchronous change hooks.
+/// </summary>
 public class ExpandableNotificationObject : NotificationObject
 {
     private bool _isExpanded;
 
     private bool _isSelected;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the object is expanded.
+    /// </summary>
     public bool IsExpanded
     {
         get => _isExpanded;
@@ -21,6 +27,9 @@ public class ExpandableNotificationObject : NotificationObject
         }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the object is selected.
+    /// </summary>
     public bool IsSelected
     {
         get => _isSelected;
@@ -36,6 +45,10 @@ public class ExpandableNotificationObject : NotificationObject
         }
     }
 
+    /// <summary>
+    /// Called synchronously after <see cref="IsExpanded" /> changes.
+    /// </summary>
+    /// <param name="isExpended">The new expanded state.</param>
     protected virtual void OnExpansionChanged(bool isExpended)
     {
     }
@@ -50,6 +63,10 @@ public class ExpandableNotificationObject : NotificationObject
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Called synchronously after <see cref="IsSelected" /> changes.
+    /// </summary>
+    /// <param name="isSelected">The new selected state.</param>
     protected virtual void OnSelectionChanged(bool isSelected)
     {
     }

@@ -1,7 +1,15 @@
 ﻿namespace Codify.System.Windows.Input;
 
+/// <summary>
+/// Represents an asynchronous command that executes a parameterless task-returning delegate.
+/// </summary>
 public sealed class AsyncActionCommand : AsyncCommand
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AsyncActionCommand" /> class.
+    /// </summary>
+    /// <param name="execute">The asynchronous delegate to execute.</param>
+    /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
     public AsyncActionCommand(Func<Task> execute, Func<bool>? canExecute = null)
     {
         ArgumentNullException.ThrowIfNull(execute);
@@ -11,8 +19,17 @@ public sealed class AsyncActionCommand : AsyncCommand
     }
 }
 
+/// <summary>
+/// Represents an asynchronous command that executes a task-returning delegate with a typed parameter.
+/// </summary>
+/// <typeparam name="T">The command parameter type.</typeparam>
 public sealed class AsyncActionCommand<T> : AsyncCommand
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AsyncActionCommand{T}" /> class.
+    /// </summary>
+    /// <param name="execute">The asynchronous delegate to execute.</param>
+    /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
     public AsyncActionCommand(Func<T, Task> execute, Func<T, bool>? canExecute = null)
     {
         ArgumentNullException.ThrowIfNull(execute);
