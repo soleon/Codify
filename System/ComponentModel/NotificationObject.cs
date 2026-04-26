@@ -5,6 +5,14 @@ namespace Codify.System.ComponentModel;
 /// </summary>
 public class NotificationObject : global::System.ComponentModel.INotifyPropertyChanged
 {
+    private static readonly global::System.ComponentModel.PropertyChangedEventArgs NullPropertyChangedEventArgs =
+        new(null);
+
+    private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<
+        string,
+        global::System.ComponentModel.PropertyChangedEventArgs> PropertyChangedEventArgsCache =
+        new(global::System.StringComparer.Ordinal);
+
     /// <summary>
     /// Occurs when a property value changes.
     /// </summary>
@@ -43,7 +51,7 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
         T value,
         [global::System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
     {
-        if (Equals(source, value)) return false;
+        if (global::System.Collections.Generic.EqualityComparer<T>.Default.Equals(source, value)) return false;
 
         source = value;
         OnPropertyChanged(propertyName);
@@ -57,6 +65,16 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
     protected virtual void OnPropertyChanged(
         [global::System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
     {
-        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, GetPropertyChangedEventArgs(propertyName));
+    }
+
+    private static global::System.ComponentModel.PropertyChangedEventArgs GetPropertyChangedEventArgs(
+        string? propertyName)
+    {
+        return propertyName is null
+            ? NullPropertyChangedEventArgs
+            : PropertyChangedEventArgsCache.GetOrAdd(
+                propertyName,
+                static name => new global::System.ComponentModel.PropertyChangedEventArgs(name));
     }
 }

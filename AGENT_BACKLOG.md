@@ -176,7 +176,43 @@ dotnet test Codify.slnx --no-build
 
 ### 3. Reduce `NotificationObject` Hot-Path Allocations and Boxing
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Replaced `object.Equals` in `NotificationObject.SetValue<T>` with
+  `EqualityComparer<T>.Default` to avoid boxing value types and to use generic
+  equality for `IEquatable<T>` implementations.
+- Cached immutable `PropertyChangedEventArgs` instances by property name,
+  including the `null` property-name case, so repeated notifications avoid
+  per-notification event-args allocation.
+- Added focused tests for value-type equality, reference-type equality, null
+  reference values, and repeated dependent-property notification ordering and
+  event-args reuse.
+
+Verification:
+
+```powershell
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter NotificationObjectTests
+# Red before implementation: failed 3 tests for object.Equals usage and repeated event-args allocation.
+# Green after implementation: passed with 13 tests passed, 0 failed, 0 skipped.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore
+# Passed: 56 tests passed, 0 failed, 0 skipped.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: 98 tests passed, 0 failed, 0 skipped.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed: exited with no formatting changes.
+
+git diff --check
+# Passed; Git printed line-ending normalization warnings.
+```
 
 Primary file:
 
