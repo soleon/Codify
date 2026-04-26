@@ -11,9 +11,11 @@ public static class EnumerationExtensions
     /// <typeparam name="T">The type of the enumerable item.</typeparam>
     /// <param name="source">The enumerable collection to batch from.</param>
     /// <param name="batchSize">The size of the batch operation.</param>
-    public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int batchSize)
+    public static global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IEnumerable<T>> Batch<T>(
+        this global::System.Collections.Generic.IEnumerable<T> source,
+        int batchSize)
     {
-        return source.Chunk(batchSize);
+        return global::System.Linq.Enumerable.Chunk(source, batchSize);
     }
 
     /// <summary>
@@ -28,7 +30,10 @@ public static class EnumerationExtensions
     ///     two comparands. Less than zero if first param is less than second param. Zero if first param equals second param.
     ///     Greater than zero if first param is greater than second param.
     /// </param>
-    public static void ConditionalInsert<T>(this IList<T> list, T item, Func<T, T, int> comparer)
+    public static void ConditionalInsert<T>(
+        this global::System.Collections.Generic.IList<T> list,
+        T item,
+        global::System.Func<T, T, int> comparer)
     {
         var index = list.ConditionalIndex(item, comparer);
         if (index >= list.Count) list.Add(item);
@@ -51,10 +56,13 @@ public static class EnumerationExtensions
     /// <remarks>
     ///     This method requires that <paramref name="list" /> is already sorted for it to function properly.
     /// </remarks>
-    public static int ConditionalIndex<T>(this IList<T> list, T item, Func<T, T, int> comparer)
+    public static int ConditionalIndex<T>(
+        this global::System.Collections.Generic.IList<T> list,
+        T item,
+        global::System.Func<T, T, int> comparer)
     {
-        ArgumentNullException.ThrowIfNull(list);
-        ArgumentNullException.ThrowIfNull(comparer);
+        global::System.ArgumentNullException.ThrowIfNull(list);
+        global::System.ArgumentNullException.ThrowIfNull(comparer);
 
         var startIndex = 0;
         var endIndex = list.Count - 1;

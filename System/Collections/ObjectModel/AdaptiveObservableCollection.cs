@@ -1,6 +1,3 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-
 namespace Codify.System.Collections.ObjectModel;
 
 /// <summary>
@@ -8,17 +5,19 @@ namespace Codify.System.Collections.ObjectModel;
 /// </summary>
 /// <typeparam name="TSource"> The type of the items in the source collection.</typeparam>
 /// <typeparam name="TTarget"> The type of the items in this collection.</typeparam>
-public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollection<TTarget>, IDisposable
+public class AdaptiveObservableCollection<TSource, TTarget> :
+    global::System.Collections.ObjectModel.ObservableCollection<TTarget>,
+    global::System.IDisposable
 {
     /// <summary>
     ///     A reference to the function used to wrap source items.
     /// </summary>
-    private readonly Func<TSource, TTarget> _converter;
+    private readonly global::System.Func<TSource, TTarget> _converter;
 
     /// <summary>
     ///     An internal list that keep track of the exact source items that maps 1 to 1 to target items in this collection.
     /// </summary>
-    private readonly ObservableCollection<TSource> _sourceCollection;
+    private readonly global::System.Collections.ObjectModel.ObservableCollection<TSource> _sourceCollection;
 
     /// <summary>
     ///     Creates a new instance of <see cref="AdaptiveObservableCollection{TSource,TTarget}" />.
@@ -29,11 +28,12 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
     /// <param name="converter">
     ///     The function used to convert <typeparamref name="TSource" /> items to <typeparamref name="TTarget" /> items.
     /// </param>
-    public AdaptiveObservableCollection(ObservableCollection<TSource> sourceCollection,
-        Func<TSource, TTarget> converter)
+    public AdaptiveObservableCollection(
+        global::System.Collections.ObjectModel.ObservableCollection<TSource> sourceCollection,
+        global::System.Func<TSource, TTarget> converter)
     {
-        ArgumentNullException.ThrowIfNull(sourceCollection);
-        ArgumentNullException.ThrowIfNull(converter);
+        global::System.ArgumentNullException.ThrowIfNull(sourceCollection);
+        global::System.ArgumentNullException.ThrowIfNull(converter);
 
         _sourceCollection = sourceCollection;
         _converter = converter;
@@ -52,32 +52,37 @@ public class AdaptiveObservableCollection<TSource, TTarget> : ObservableCollecti
         global::System.GC.SuppressFinalize(this);
     }
 
-    private void OnSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void OnSourceCollectionChanged(
+        object? sender,
+        global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         switch (e.Action)
         {
-            case NotifyCollectionChangedAction.Add:
-                ArgumentNullException.ThrowIfNull(e.NewItems);
+            case global::System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                global::System.ArgumentNullException.ThrowIfNull(e.NewItems);
                 InsertItems(e.NewStartingIndex, e.NewItems);
                 break;
-            case NotifyCollectionChangedAction.Remove:
-                ArgumentNullException.ThrowIfNull(e.OldItems);
+            case global::System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                global::System.ArgumentNullException.ThrowIfNull(e.OldItems);
                 RemoveItems(e.OldStartingIndex, e.OldItems);
                 break;
-            case NotifyCollectionChangedAction.Replace:
-                ArgumentNullException.ThrowIfNull(e.NewItems);
-                ArgumentNullException.ThrowIfNull(e.OldItems);
+            case global::System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                global::System.ArgumentNullException.ThrowIfNull(e.NewItems);
+                global::System.ArgumentNullException.ThrowIfNull(e.OldItems);
                 ReplaceItems(e.NewStartingIndex, e.OldItems, e.NewItems);
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
                 ResetFromSource();
                 break;
-            case NotifyCollectionChangedAction.Move:
-                ArgumentNullException.ThrowIfNull(e.NewItems);
+            case global::System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                global::System.ArgumentNullException.ThrowIfNull(e.NewItems);
                 MoveItems(e.OldStartingIndex, e.NewStartingIndex, e.NewItems);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(e), e.Action, "Unsupported collection change action.");
+                throw new global::System.ArgumentOutOfRangeException(
+                    nameof(e),
+                    e.Action,
+                    "Unsupported collection change action.");
         }
     }
 

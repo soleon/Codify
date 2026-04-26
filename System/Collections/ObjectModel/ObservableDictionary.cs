@@ -5,33 +5,41 @@
 /// </summary>
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the collection.</typeparam>
-public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TValue>, IDictionary<TKey, TValue>
+public class ObservableDictionary<TKey, TValue> :
+    BatchObservableCollection<TValue>,
+    global::System.Collections.Generic.IDictionary<TKey, TValue>
     where TKey : notnull
 {
-    private static readonly EqualityComparer<TKey> KeyComparer = EqualityComparer<TKey>.Default;
-    private static readonly EqualityComparer<TValue> ValueComparer = EqualityComparer<TValue>.Default;
+    private static readonly global::System.Collections.Generic.EqualityComparer<TKey> KeyComparer =
+        global::System.Collections.Generic.EqualityComparer<TKey>.Default;
 
-    private readonly Dictionary<TKey, TValue> _dictionary = new();
-    private readonly Func<TValue, TKey> _getKey;
+    private static readonly global::System.Collections.Generic.EqualityComparer<TValue> ValueComparer =
+        global::System.Collections.Generic.EqualityComparer<TValue>.Default;
+
+    private readonly global::System.Collections.Generic.Dictionary<TKey, TValue> _dictionary = new();
+    private readonly global::System.Func<TValue, TKey> _getKey;
     private readonly global::System.Threading.Lock _syncRoot = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ObservableDictionary{TKey,TValue}" /> class.
     /// </summary>
     /// <param name="keyProvider">The function that returns the dictionary key for a value.</param>
-    public ObservableDictionary(Func<TValue, TKey> keyProvider)
+    public ObservableDictionary(global::System.Func<TValue, TKey> keyProvider)
     {
-        ArgumentNullException.ThrowIfNull(keyProvider);
+        global::System.ArgumentNullException.ThrowIfNull(keyProvider);
 
         _getKey = keyProvider;
     }
 
-    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+    global::System.Collections.Generic.IEnumerator<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>
+        global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>.
+        GetEnumerator()
     {
         return _dictionary.GetEnumerator();
     }
 
-    void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+    void global::System.Collections.Generic.ICollection<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>.
+        Add(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
     {
         lock (_syncRoot)
         {
@@ -39,7 +47,8 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
-    bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
+    bool global::System.Collections.Generic.ICollection<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>.
+        Contains(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
     {
         lock (_syncRoot)
         {
@@ -47,15 +56,18 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
-    void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    void global::System.Collections.Generic.ICollection<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>.
+        CopyTo(global::System.Collections.Generic.KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
         lock (_syncRoot)
         {
-            ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).CopyTo(array, arrayIndex);
+            ((global::System.Collections.Generic.ICollection<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>)
+                _dictionary).CopyTo(array, arrayIndex);
         }
     }
 
-    bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+    bool global::System.Collections.Generic.ICollection<global::System.Collections.Generic.KeyValuePair<TKey, TValue>>.
+        Remove(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
     {
         lock (_syncRoot)
         {
@@ -187,7 +199,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     /// <summary>
     /// Gets a collection containing the dictionary keys.
     /// </summary>
-    public ICollection<TKey> Keys
+    public global::System.Collections.Generic.ICollection<TKey> Keys
     {
         get
         {
@@ -201,7 +213,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     /// <summary>
     /// Gets a collection containing the dictionary values.
     /// </summary>
-    public ICollection<TValue> Values
+    public global::System.Collections.Generic.ICollection<TValue> Values
     {
         get
         {
@@ -265,7 +277,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         }
     }
 
-    private bool Contains(KeyValuePair<TKey, TValue> item)
+    private bool Contains(global::System.Collections.Generic.KeyValuePair<TKey, TValue> item)
     {
         return _dictionary.TryGetValue(item.Key, out var value) &&
                ValueComparer.Equals(value, item.Value);
@@ -276,7 +288,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         var itemKey = _getKey(value);
         if (!KeyComparer.Equals(key, itemKey))
         {
-            throw new ArgumentException("The key must match the key provided by the value.", nameof(key));
+            throw new global::System.ArgumentException("The key must match the key provided by the value.", nameof(key));
         }
 
         return itemKey;
@@ -287,7 +299,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
         CheckReentrancy();
         if ((uint)index > (uint)Count)
         {
-            throw new ArgumentOutOfRangeException(nameof(index));
+            throw new global::System.ArgumentOutOfRangeException(nameof(index));
         }
 
         _dictionary.Add(key, item);
@@ -306,7 +318,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
         if (_dictionary.ContainsKey(newKey))
         {
-            throw new ArgumentException("An item with the same key already exists.", nameof(item));
+            throw new global::System.ArgumentException("An item with the same key already exists.", nameof(item));
         }
 
         _dictionary.Remove(oldKey);

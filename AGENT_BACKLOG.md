@@ -110,7 +110,38 @@ dotnet test Codify.slnx --no-build
 
 ### 2. Apply `global::System.*` Qualification in `Codify.System`
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Removed ambiguous BCL `System.*` usings from `System` production sources and
+  qualified BCL type references with `global::System.*`.
+- Added a focused source-level regression test that guards production
+  `Codify.System` sources against reintroducing unqualified BCL references.
+
+Verification:
+
+```powershell
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter GlobalSystemQualificationTests
+# Red before implementation: failed with 1 convention-test failure for current unqualified sources.
+# Green after implementation: passed with 1 test passed, 0 failed, 0 skipped.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore
+# Passed: 52 tests passed, 0 failed, 0 skipped.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: 94 tests passed, 0 failed, 0 skipped.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed: exited with no formatting changes.
+
+git diff --check
+# Passed; Git printed line-ending normalization warnings.
+```
 
 Primary files:
 

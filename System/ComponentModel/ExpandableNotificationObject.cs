@@ -55,12 +55,12 @@ public class ExpandableNotificationObject : NotificationObject
 
     /// <summary>
     /// Called after <see cref="IsExpanded"/> changes. The setter starts this hook without awaiting it;
-    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(Exception)"/>.
+    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)"/>.
     /// </summary>
     /// <param name="isExpended">The new expanded state.</param>
-    protected virtual Task OnExpansionChangedAsync(bool isExpended)
+    protected virtual global::System.Threading.Tasks.Task OnExpansionChangedAsync(bool isExpended)
     {
-        return Task.CompletedTask;
+        return global::System.Threading.Tasks.Task.CompletedTask;
     }
 
     /// <summary>
@@ -73,23 +73,23 @@ public class ExpandableNotificationObject : NotificationObject
 
     /// <summary>
     /// Called after <see cref="IsSelected"/> changes. The setter starts this hook without awaiting it;
-    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(Exception)"/>.
+    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)"/>.
     /// </summary>
     /// <param name="isSelected">The new selected state.</param>
-    protected virtual Task OnSelectionChangedAsync(bool isSelected)
+    protected virtual global::System.Threading.Tasks.Task OnSelectionChangedAsync(bool isSelected)
     {
-        return Task.CompletedTask;
+        return global::System.Threading.Tasks.Task.CompletedTask;
     }
 
     /// <summary>
     /// Called when a task returned by an asynchronous change hook faults.
     /// </summary>
     /// <param name="exception">The observed asynchronous hook exception.</param>
-    protected virtual void OnAsyncHookException(Exception exception)
+    protected virtual void OnAsyncHookException(global::System.Exception exception)
     {
     }
 
-    private void ObserveAsyncHook(Task? task)
+    private void ObserveAsyncHook(global::System.Threading.Tasks.Task? task)
     {
         if (task == null || task.IsCompletedSuccessfully)
         {
@@ -99,13 +99,13 @@ public class ExpandableNotificationObject : NotificationObject
         _ = ObserveAsyncHookAsync(task);
     }
 
-    private async Task ObserveAsyncHookAsync(Task task)
+    private async global::System.Threading.Tasks.Task ObserveAsyncHookAsync(global::System.Threading.Tasks.Task task)
     {
         try
         {
             await task.ConfigureAwait(false);
         }
-        catch (Exception exception)
+        catch (global::System.Exception exception)
         {
             try
             {

@@ -1,17 +1,14 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
 namespace Codify.System.ComponentModel;
 
 /// <summary>
-/// Provides a base implementation of <see cref="INotifyPropertyChanged" /> for observable objects.
+/// Provides a base implementation of <see cref="global::System.ComponentModel.INotifyPropertyChanged" /> for observable objects.
 /// </summary>
-public class NotificationObject : INotifyPropertyChanged
+public class NotificationObject : global::System.ComponentModel.INotifyPropertyChanged
 {
     /// <summary>
     /// Occurs when a property value changes.
     /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event global::System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// Sets a backing field and raises change notifications when the value changes.
@@ -41,7 +38,10 @@ public class NotificationObject : INotifyPropertyChanged
     /// <param name="value">The new value.</param>
     /// <param name="propertyName">The name of the property that changed.</param>
     /// <returns><see langword="true" /> if the value changed; otherwise, <see langword="false" />.</returns>
-    protected bool SetValue<T>(ref T source, T value, [CallerMemberName] string? propertyName = null)
+    protected bool SetValue<T>(
+        ref T source,
+        T value,
+        [global::System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
     {
         if (Equals(source, value)) return false;
 
@@ -54,8 +54,9 @@ public class NotificationObject : INotifyPropertyChanged
     /// Raises the <see cref="PropertyChanged" /> event for the specified property.
     /// </summary>
     /// <param name="propertyName">The name of the property that changed.</param>
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    protected virtual void OnPropertyChanged(
+        [global::System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(propertyName));
     }
 }

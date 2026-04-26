@@ -1,18 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-
 namespace Codify.System.Collections.ObjectModel;
 
 /// <summary>
 /// Provides an observable collection that can suppress intermediate notifications during a batch update.
 /// </summary>
 /// <typeparam name="T">The type of items in the collection.</typeparam>
-public class BatchObservableCollection<T> : ObservableCollection<T>
+public class BatchObservableCollection<T> : global::System.Collections.ObjectModel.ObservableCollection<T>
 {
     private readonly global::System.Threading.Lock _collectionUpdateLock = new();
 
-    private readonly PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
+    private readonly global::System.ComponentModel.PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
 
     private bool _isUpdating;
 
@@ -22,7 +18,7 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
     /// <returns>
     /// A disposable handle that raises a reset notification after the update completes.
     /// </returns>
-    public IDisposable BeginUpdate()
+    public global::System.IDisposable BeginUpdate()
     {
         lock (_collectionUpdateLock)
         {
@@ -36,12 +32,12 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
     /// Raises a property change notification unless a batch update is active.
     /// </summary>
     /// <param name="e">The property change data.</param>
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    protected override void OnPropertyChanged(global::System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (!_isUpdating) base.OnPropertyChanged(e);
     }
 
-    private void NotifyCollectionChanged(NotifyCollectionChangedEventArgs e)
+    private void NotifyCollectionChanged(global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         base.OnCollectionChanged(e);
     }
@@ -53,7 +49,9 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
             _isUpdating = false;
         }
 
-        NotifyCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        NotifyCollectionChanged(
+            new global::System.Collections.Specialized.NotifyCollectionChangedEventArgs(
+                global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
         OnPropertyChanged(_countPropertyChangedEventArgs);
     }
 
@@ -61,7 +59,7 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
     /// Raises a collection change notification unless a batch update is active.
     /// </summary>
     /// <param name="e">The collection change data.</param>
-    protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    protected override void OnCollectionChanged(global::System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         lock (_collectionUpdateLock)
         {
@@ -71,7 +69,7 @@ public class BatchObservableCollection<T> : ObservableCollection<T>
         NotifyCollectionChanged(e);
     }
 
-    private sealed class CollectionUpdateHandle : IDisposable
+    private sealed class CollectionUpdateHandle : global::System.IDisposable
     {
         private readonly BatchObservableCollection<T> _collection;
 
