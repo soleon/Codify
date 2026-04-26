@@ -37,6 +37,23 @@ public class WindowViewModelTests
         });
     }
 
+    [Fact]
+    public void ClosingReplacedWindowDoesNotClearCurrentView()
+    {
+        RunOnStaThread(() =>
+        {
+            var viewModel = new TrackingWindowViewModel();
+            var replacedWindow = viewModel.View;
+            var currentWindow = new TestWindow();
+
+            viewModel.View = currentWindow;
+            replacedWindow.RaiseClosed();
+
+            Assert.Same(currentWindow, viewModel.View);
+            Assert.Equal(0, viewModel.UnloadCount);
+        });
+    }
+
     private static void RunOnStaThread(Action action)
     {
         Exception? exception = null;

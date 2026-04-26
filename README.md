@@ -32,7 +32,7 @@ public sealed class CustomerViewModel : NotificationObject
     public string Name
     {
         get => name;
-        set => SetProperty(ref name, value);
+        set => SetValue(ref name, value);
     }
 }
 ```

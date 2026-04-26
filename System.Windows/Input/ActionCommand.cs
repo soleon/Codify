@@ -1,4 +1,4 @@
-﻿namespace Codify.System.Windows.Input;
+namespace Codify.System.Windows.Input;
 
 /// <summary>
 /// Represents a synchronous command that executes a parameterless action.
@@ -10,9 +10,9 @@ public sealed class ActionCommand : SyncCommand
     /// </summary>
     /// <param name="execute">The action to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
-    public ActionCommand(Action execute, Func<bool>? canExecute = null)
+    public ActionCommand(global::System.Action execute, global::System.Func<bool>? canExecute = null)
     {
-        ArgumentNullException.ThrowIfNull(execute);
+        global::System.ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteAction = _ =>
         {
@@ -33,9 +33,9 @@ public sealed class ActionCommand<T> : SyncCommand
     /// </summary>
     /// <param name="execute">The action to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
-    public ActionCommand(Action<T> execute, Func<T, bool>? canExecute = null)
+    public ActionCommand(global::System.Action<T> execute, global::System.Func<T, bool>? canExecute = null)
     {
-        ArgumentNullException.ThrowIfNull(execute);
+        global::System.ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteAction = param =>
         {

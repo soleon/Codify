@@ -1,16 +1,12 @@
-﻿using System.Globalization;
-using System.Collections.Concurrent;
-using System.Windows;
-using System.Windows.Data;
-
 namespace Codify.System.Windows.Data;
 
 /// <summary>
 /// Converts values to Boolean binding values.
 /// </summary>
-public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverter
+public class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
 {
-    private static readonly ConcurrentDictionary<Type, object?> DefaultValues = new();
+    private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object?>
+        DefaultValues = new();
 
     /// <summary>
     /// Converts the supplied value to a Boolean value for a binding target.
@@ -20,15 +16,19 @@ public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverte
     /// <param name="parameter">Use the string value <c>invert</c> to invert the conversion result.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
-    /// <see cref="DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset; otherwise, the converted
-    /// Boolean value.
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
+    /// otherwise, the converted Boolean value.
     /// </returns>
-    public object Convert(object? value, Type? targetType = null, object? parameter = null, CultureInfo? culture = null)
+    public object Convert(
+        object? value,
+        global::System.Type? targetType = null,
+        object? parameter = null,
+        global::System.Globalization.CultureInfo? culture = null)
     {
-        if (value == DependencyProperty.UnsetValue) return value;
+        if (value == global::System.Windows.DependencyProperty.UnsetValue) return value;
 
         var isInvert = parameter is string stringValue &&
-                       stringValue.Equals("invert", StringComparison.OrdinalIgnoreCase);
+                       stringValue.Equals("invert", global::System.StringComparison.OrdinalIgnoreCase);
         switch (value)
         {
             case bool boolValue:
@@ -47,16 +47,21 @@ public class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverte
     /// <param name="targetType">The binding source type.</param>
     /// <param name="parameter">An optional converter parameter.</param>
     /// <param name="culture">The culture to use for conversion.</param>
-    /// <returns>This method does not return a value.</returns>
-    /// <exception cref="NotImplementedException">The conversion is not implemented.</exception>
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    /// <returns>
+    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> because reverse conversion is not supported.
+    /// </returns>
+    public object ConvertBack(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return global::System.Windows.Data.Binding.DoNothing;
     }
 
-    private static object? GetDefaultValue(Type type)
+    private static object? GetDefaultValue(global::System.Type type)
     {
-        return DefaultValues.GetOrAdd(type, static valueType => Activator.CreateInstance(valueType));
+        return DefaultValues.GetOrAdd(type, static valueType => global::System.Activator.CreateInstance(valueType));
     }
 
     private static bool IsDefaultValue(object value)

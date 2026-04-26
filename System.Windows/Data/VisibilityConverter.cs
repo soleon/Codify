@@ -1,30 +1,35 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
 namespace Codify.System.Windows.Data;
 
 /// <summary>
-/// Converts values to WPF <see cref="Visibility" /> values.
+/// Converts values to WPF <see cref="global::System.Windows.Visibility" /> values.
 /// </summary>
-public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, IValueConverter
+public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, global::System.Windows.Data.IValueConverter
 {
     /// <summary>
-    /// Converts the supplied value to <see cref="Visibility.Visible" /> or <see cref="Visibility.Collapsed" />.
+    /// Converts the supplied value to <see cref="global::System.Windows.Visibility.Visible" /> or
+    /// <see cref="global::System.Windows.Visibility.Collapsed" />.
     /// </summary>
     /// <param name="value">The value produced by the binding source.</param>
     /// <param name="targetType">The binding target type.</param>
     /// <param name="parameter">A parameter passed through to <see cref="BooleanConverter" />.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
-    /// <see cref="DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset; otherwise,
-    /// <see cref="Visibility.Visible" /> or <see cref="Visibility.Collapsed" />.
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
+    /// otherwise, <see cref="global::System.Windows.Visibility.Visible" /> or
+    /// <see cref="global::System.Windows.Visibility.Collapsed" />.
     /// </returns>
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
         var result = BooleanConverter.Instance.Convert(value, targetType, parameter, culture);
-        return result == DependencyProperty.UnsetValue ? result :
-            result is true ? Visibility.Visible : Visibility.Collapsed;
+        return result == global::System.Windows.DependencyProperty.UnsetValue
+            ? result
+            : result is true
+                ? global::System.Windows.Visibility.Visible
+                : global::System.Windows.Visibility.Collapsed;
     }
 
     /// <summary>
@@ -34,10 +39,15 @@ public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, I
     /// <param name="targetType">The binding source type.</param>
     /// <param name="parameter">An optional converter parameter.</param>
     /// <param name="culture">The culture to use for conversion.</param>
-    /// <returns>This method does not return a value.</returns>
-    /// <exception cref="NotImplementedException">The conversion is not implemented.</exception>
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    /// <returns>
+    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> because reverse conversion is not supported.
+    /// </returns>
+    public object ConvertBack(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return global::System.Windows.Data.Binding.DoNothing;
     }
 }

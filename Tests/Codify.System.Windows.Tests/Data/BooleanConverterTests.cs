@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Data;
 using Codify.System.Windows.Data;
 
 namespace Codify.System.Windows.Tests.Data;
@@ -59,9 +60,10 @@ public class BooleanConverterTests
     }
 
     [Fact]
-    public void ConvertBackIsNotImplemented()
+    public void ConvertBackReturnsDoNothing()
     {
-        Assert.Throws<NotImplementedException>(
-            () => BooleanConverter.Instance.ConvertBack(true, null!, null!, CultureInfo.InvariantCulture));
+        var result = BooleanConverter.Instance.ConvertBack(true, null!, null!, CultureInfo.InvariantCulture);
+
+        Assert.Same(Binding.DoNothing, result);
     }
 }

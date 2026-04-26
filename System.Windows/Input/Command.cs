@@ -1,11 +1,9 @@
-﻿using System.Windows.Input;
-
 namespace Codify.System.Windows.Input;
 
 /// <summary>
-/// Provides a base implementation of <see cref="ICommand" />.
+/// Provides a base implementation of <see cref="global::System.Windows.Input.ICommand" />.
 /// </summary>
-public abstract class Command : ICommand
+public abstract class Command : global::System.Windows.Input.ICommand
 {
     /// <summary>
     /// Stores the delegate invoked by <see cref="CanExecute(object?)" />.
@@ -14,7 +12,7 @@ public abstract class Command : ICommand
         "Design",
         "CA1051:Do not declare visible instance fields",
         Justification = "The protected field is part of the existing extensibility surface for derived command types.")]
-    protected Func<object?, bool>? CanExecuteFunc;
+    protected global::System.Func<object?, bool>? CanExecuteFunc;
 
     /// <summary>
     /// Determines whether the command can execute with the specified parameter.
@@ -35,14 +33,14 @@ public abstract class Command : ICommand
     /// <summary>
     /// Occurs when changes affect whether the command should execute.
     /// </summary>
-    public event EventHandler? CanExecuteChanged;
+    public event global::System.EventHandler? CanExecuteChanged;
 
     /// <summary>
     /// Raises the <see cref="CanExecuteChanged" /> event.
     /// </summary>
     public void NotifyCanExecuteChanged()
     {
-        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        CanExecuteChanged?.Invoke(this, global::System.EventArgs.Empty);
     }
 }
 
@@ -73,9 +71,9 @@ internal static class CommandParameter<T>
         return parameter == null && !AcceptsNull;
     }
 
-    public static InvalidOperationException CreateInvalidTypeException(object parameter)
+    public static global::System.InvalidOperationException CreateInvalidTypeException(object parameter)
     {
-        return new InvalidOperationException(
+        return new global::System.InvalidOperationException(
             $"{parameter.GetType()} is not a valid parameter type for this command. Expected {typeof(T)}.");
     }
 }

@@ -1,13 +1,9 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
 namespace Codify.System.Windows.Data;
 
 /// <summary>
 /// Converts multiple binding values to a single Boolean value.
 /// </summary>
-public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, IMultiValueConverter
+public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, global::System.Windows.Data.IMultiValueConverter
 {
     private static readonly BooleanConverter BooleanConverter = StaticInstance<BooleanConverter>.Instance;
 
@@ -21,16 +17,20 @@ public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, IMul
     /// <returns>
     /// <see langword="true" /> when all values convert to true; <paramref name="parameter" /> or
     /// <see langword="false" /> when any value converts to false; otherwise,
-    /// <see cref="DependencyProperty.UnsetValue" /> when any value is unset.
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when any value is unset.
     /// </returns>
-    public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(
+        object[] values,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
         foreach (var value in values)
         {
             var result = BooleanConverter.Convert(value);
-            if (result == DependencyProperty.UnsetValue)
+            if (result == global::System.Windows.DependencyProperty.UnsetValue)
             {
-                return DependencyProperty.UnsetValue;
+                return global::System.Windows.DependencyProperty.UnsetValue;
             }
 
             if (!Equals(result, true))
@@ -50,7 +50,11 @@ public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, IMul
     /// <param name="parameter">An optional converter parameter.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns><see langword="null" /> because reverse conversion is not supported.</returns>
-    public object[]? ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
+    public object[]? ConvertBack(
+        object? value,
+        global::System.Type[] targetTypes,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
         return null;
     }

@@ -1,13 +1,9 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
-
 namespace Codify.System.Windows.Data;
 
 /// <summary>
 /// Converts values to Boolean binding values by comparing them with the converter parameter.
 /// </summary>
-public class EqualityConverter : StaticInstance<EqualityConverter>, IValueConverter
+public class EqualityConverter : StaticInstance<EqualityConverter>, global::System.Windows.Data.IValueConverter
 {
     /// <summary>
     /// Determines whether the supplied value equals the converter parameter.
@@ -17,7 +13,11 @@ public class EqualityConverter : StaticInstance<EqualityConverter>, IValueConver
     /// <param name="parameter">The value to compare with <paramref name="value" />.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns><see langword="true" /> when the values are equal; otherwise, <see langword="false" />.</returns>
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
         return Equals(value, parameter);
     }
@@ -31,12 +31,16 @@ public class EqualityConverter : StaticInstance<EqualityConverter>, IValueConver
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
     /// <paramref name="parameter" /> when <paramref name="value" /> is <see langword="true" />; otherwise,
-    /// <see cref="DependencyProperty.UnsetValue" />.
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" />.
     /// </returns>
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object? ConvertBack(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
     {
         return value is true
             ? parameter
-            : DependencyProperty.UnsetValue;
+            : global::System.Windows.DependencyProperty.UnsetValue;
     }
 }

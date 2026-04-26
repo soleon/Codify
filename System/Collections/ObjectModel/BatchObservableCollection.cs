@@ -10,6 +10,8 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
     private readonly global::System.ComponentModel.PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
 
+    private readonly global::System.ComponentModel.PropertyChangedEventArgs _indexerPropertyChangedEventArgs = new("Item[]");
+
     private int _updateDepth;
 
     /// <summary>
@@ -63,6 +65,7 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
             new global::System.Collections.Specialized.NotifyCollectionChangedEventArgs(
                 global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
         OnPropertyChanged(_countPropertyChangedEventArgs);
+        OnPropertyChanged(_indexerPropertyChangedEventArgs);
     }
 
     /// <summary>

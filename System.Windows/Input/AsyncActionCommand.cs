@@ -1,4 +1,4 @@
-﻿namespace Codify.System.Windows.Input;
+namespace Codify.System.Windows.Input;
 
 /// <summary>
 /// Represents an asynchronous command that executes a parameterless task-returning delegate.
@@ -10,11 +10,13 @@ public sealed class AsyncActionCommand : AsyncCommand
     /// </summary>
     /// <param name="execute">The asynchronous delegate to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
-    public AsyncActionCommand(Func<Task> execute, Func<bool>? canExecute = null)
+    public AsyncActionCommand(
+        global::System.Func<global::System.Threading.Tasks.Task> execute,
+        global::System.Func<bool>? canExecute = null)
     {
-        ArgumentNullException.ThrowIfNull(execute);
+        global::System.ArgumentNullException.ThrowIfNull(execute);
 
-        ExecuteFunc = _ => CanExecute(null) ? execute() : Task.CompletedTask;
+        ExecuteFunc = _ => CanExecute(null) ? execute() : global::System.Threading.Tasks.Task.CompletedTask;
         CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
     }
 }
@@ -30,19 +32,21 @@ public sealed class AsyncActionCommand<T> : AsyncCommand
     /// </summary>
     /// <param name="execute">The asynchronous delegate to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
-    public AsyncActionCommand(Func<T, Task> execute, Func<T, bool>? canExecute = null)
+    public AsyncActionCommand(
+        global::System.Func<T, global::System.Threading.Tasks.Task> execute,
+        global::System.Func<T, bool>? canExecute = null)
     {
-        ArgumentNullException.ThrowIfNull(execute);
+        global::System.ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteFunc = param =>
         {
             if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                return CanExecute(param) ? execute(value) : Task.CompletedTask;
+                return CanExecute(param) ? execute(value) : global::System.Threading.Tasks.Task.CompletedTask;
             }
 
             return CommandParameter<T>.IsNullInvalid(param)
-                ? Task.CompletedTask
+                ? global::System.Threading.Tasks.Task.CompletedTask
                 : throw CommandParameter<T>.CreateInvalidTypeException(param!);
         };
 

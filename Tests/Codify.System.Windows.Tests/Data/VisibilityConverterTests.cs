@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Data;
 using Codify.System.Windows.Data;
 
 namespace Codify.System.Windows.Tests.Data;
@@ -49,9 +50,14 @@ public class VisibilityConverterTests
     }
 
     [Fact]
-    public void ConvertBackIsNotImplemented()
+    public void ConvertBackReturnsDoNothing()
     {
-        Assert.Throws<NotImplementedException>(
-            () => VisibilityConverter.Instance.ConvertBack(Visibility.Visible, typeof(bool), null!, CultureInfo.InvariantCulture));
+        var result = VisibilityConverter.Instance.ConvertBack(
+            Visibility.Visible,
+            typeof(bool),
+            null!,
+            CultureInfo.InvariantCulture);
+
+        Assert.Same(Binding.DoNothing, result);
     }
 }

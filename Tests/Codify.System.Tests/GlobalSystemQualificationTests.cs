@@ -7,9 +7,15 @@ public class GlobalSystemQualificationTests
         "ArgumentException",
         "ArgumentNullException",
         "ArgumentOutOfRangeException",
+        "Action",
+        "Activator",
         "CallerMemberName",
+        "ConcurrentDictionary",
+        "CultureInfo",
         "Dictionary",
         "EqualityComparer",
+        "EventArgs",
+        "EventHandler",
         "Exception",
         "Func",
         "ICollection",
@@ -25,27 +31,32 @@ public class GlobalSystemQualificationTests
         "ObservableCollection",
         "PropertyChangedEventArgs",
         "PropertyChangedEventHandler",
-        "Task"
+        "StringComparison",
+        "Task",
+        "Type"
     ];
 
     [Fact]
-    public void ProductionSourcesUnderCodifySystemQualifyBclSystemReferences()
+    public void ProductionSourcesUnderCodifyNamespacesQualifyBclSystemReferences()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var systemProjectDirectory = global::System.IO.Path.Combine(repositoryRoot, "System");
         var offenders = new global::System.Collections.Generic.List<string>();
 
-        foreach (var file in global::System.IO.Directory.EnumerateFiles(
-                     systemProjectDirectory,
-                     "*.cs",
-                     global::System.IO.SearchOption.AllDirectories))
+        foreach (var projectDirectory in new[] { "System", "System.Windows" })
         {
-            if (IsGeneratedOutput(file))
+            var sourceDirectory = global::System.IO.Path.Combine(repositoryRoot, projectDirectory);
+            foreach (var file in global::System.IO.Directory.EnumerateFiles(
+                         sourceDirectory,
+                         "*.cs",
+                         global::System.IO.SearchOption.AllDirectories))
             {
-                continue;
-            }
+                if (IsGeneratedOutput(file))
+                {
+                    continue;
+                }
 
-            InspectFile(repositoryRoot, file, offenders);
+                InspectFile(repositoryRoot, file, offenders);
+            }
         }
 
         Assert.Empty(offenders);
@@ -104,6 +115,11 @@ public class GlobalSystemQualificationTests
                 continue;
             }
 
+            if (IsMemberAccess(code, matchIndex))
+            {
+                continue;
+            }
+
             if (IsGlobalSystemQualified(code, matchIndex))
             {
                 continue;
@@ -148,6 +164,17 @@ public class GlobalSystemQualificationTests
         return index < 0 ||
                index >= text.Length ||
                (!char.IsLetterOrDigit(text[index]) && text[index] != '_');
+    }
+
+    private static bool IsMemberAccess(string code, int matchIndex)
+    {
+        var previousIndex = matchIndex - 1;
+        while (previousIndex >= 0 && char.IsWhiteSpace(code[previousIndex]))
+        {
+            previousIndex--;
+        }
+
+        return previousIndex >= 0 && code[previousIndex] == '.';
     }
 
     private static bool IsGlobalSystemQualified(string code, int matchIndex)

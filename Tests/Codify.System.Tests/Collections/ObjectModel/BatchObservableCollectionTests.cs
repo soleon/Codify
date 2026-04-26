@@ -40,8 +40,22 @@ public class BatchObservableCollectionTests
 
         var collectionEvent = Assert.Single(collectionEvents);
         Assert.Equal(NotifyCollectionChangedAction.Reset, collectionEvent.Action);
-        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal(["Count", "Item[]"], propertyNames);
         Assert.Equal([2], collection);
+    }
+
+    [Fact]
+    public void CompletedUpdateRaisesIndexerPropertyNotification()
+    {
+        var collection = new BatchObservableCollection<int> { 1 };
+        var propertyNames = TrackPropertyChanges(collection);
+
+        using (collection.BeginUpdate())
+        {
+            collection[0] = 2;
+        }
+
+        Assert.Contains("Item[]", propertyNames);
     }
 
     [Fact]
@@ -83,7 +97,7 @@ public class BatchObservableCollectionTests
 
         var collectionEvent = Assert.Single(collectionEvents);
         Assert.Equal(NotifyCollectionChangedAction.Reset, collectionEvent.Action);
-        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal(["Count", "Item[]"], propertyNames);
         Assert.Equal([1, 2, 3], collection);
     }
 
@@ -101,7 +115,7 @@ public class BatchObservableCollectionTests
         update.Dispose();
 
         Assert.Single(collectionEvents);
-        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal(["Count", "Item[]"], propertyNames);
         Assert.Equal([1], collection);
     }
 
