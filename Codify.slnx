@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Codify.System.Tests/Codify.System.Tests.csproj" />
+  </Folder>
+  <Project Path="System.Windows/System.Windows.csproj" />
+  <Project Path="System/System.csproj" />
+</Solution>
