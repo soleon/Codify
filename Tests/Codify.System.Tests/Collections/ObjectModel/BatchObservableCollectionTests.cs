@@ -1,0 +1,76 @@
+using System.Collections.Specialized;
+using System.ComponentModel;
+using Codify.System.Collections.ObjectModel;
+
+namespace Codify.System.Tests.Collections.ObjectModel;
+
+public class BatchObservableCollectionTests
+{
+    [Fact]
+    public void CollectionChangesOutsideUpdateRaiseNormalNotifications()
+    {
+        var collection = new BatchObservableCollection<int>();
+        var collectionEvents = TrackCollectionChanges(collection);
+        var propertyNames = TrackPropertyChanges(collection);
+
+        collection.Add(42);
+
+        var collectionEvent = Assert.Single(collectionEvents);
+        Assert.Equal(NotifyCollectionChangedAction.Add, collectionEvent.Action);
+        Assert.Equal(0, collectionEvent.NewStartingIndex);
+        Assert.Equal([42], collectionEvent.NewItems!.Cast<int>());
+        Assert.Equal(["Count", "Item[]"], propertyNames);
+    }
+
+    [Fact]
+    public void BeginUpdateSuppressesIntermediateNotificationsUntilDisposed()
+    {
+        var collection = new BatchObservableCollection<int> { 1 };
+        var collectionEvents = TrackCollectionChanges(collection);
+        var propertyNames = TrackPropertyChanges(collection);
+
+        using (collection.BeginUpdate())
+        {
+            collection.Add(2);
+            collection.Remove(1);
+
+            Assert.Empty(collectionEvents);
+            Assert.Empty(propertyNames);
+        }
+
+        var collectionEvent = Assert.Single(collectionEvents);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, collectionEvent.Action);
+        Assert.Equal(["Count"], propertyNames);
+        Assert.Equal([2], collection);
+    }
+
+    [Fact]
+    public void BeginUpdateReturnsHandleThatCanBeDisposedExplicitly()
+    {
+        var collection = new BatchObservableCollection<int>();
+        var collectionEvents = TrackCollectionChanges(collection);
+
+        var update = collection.BeginUpdate();
+        collection.Add(1);
+        update.Dispose();
+
+        var collectionEvent = Assert.Single(collectionEvents);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, collectionEvent.Action);
+        Assert.Equal([1], collection);
+    }
+
+    private static List<NotifyCollectionChangedEventArgs> TrackCollectionChanges<T>(
+        BatchObservableCollection<T> collection)
+    {
+        var events = new List<NotifyCollectionChangedEventArgs>();
+        collection.CollectionChanged += (_, args) => events.Add(args);
+        return events;
+    }
+
+    private static List<string?> TrackPropertyChanges<T>(BatchObservableCollection<T> collection)
+    {
+        var propertyNames = new List<string?>();
+        ((INotifyPropertyChanged)collection).PropertyChanged += (_, args) => propertyNames.Add(args.PropertyName);
+        return propertyNames;
+    }
+}

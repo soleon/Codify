@@ -161,7 +161,17 @@ dotnet build Codify.slnx --no-restore
 
 ### 4. Add broader public behavior test coverage
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in this session on branch `master`.
+- Added focused public behavior tests for `NotificationObject`, `BatchObservableCollection`, `EnumerationExtensions`, WPF data converters, and `ViewModel<T>`.
+- Verification: `dotnet test .\Tests\Codify.System.Tests\Codify.System.Tests.csproj` passed with 37/37 tests; it emitted the existing `Codify.System` package readme warning during package generation.
+- Verification: `dotnet test .\Tests\Codify.System.Windows.Tests\Codify.System.Windows.Tests.csproj` passed with 42/42 tests; it emitted the existing `Codify.System.Windows` package readme warning during package generation.
+- Verification: `dotnet test .\Codify.slnx` passed with 79/79 tests.
+- Verification: `dotnet build .\Codify.slnx --no-restore` succeeded with 0 warnings and 0 errors.
+- Verification: `dotnet format .\Codify.slnx --verify-no-changes --include .\Tests\Codify.System.Tests\ComponentModel\NotificationObjectTests.cs .\Tests\Codify.System.Tests\Collections\ObjectModel\BatchObservableCollectionTests.cs .\Tests\Codify.System.Tests\Extensions\EnumerationExtensionsTests.cs .\Tests\Codify.System.Windows.Tests\Data\BooleanConverterTests.cs .\Tests\Codify.System.Windows.Tests\Data\EqualityConverterTests.cs .\Tests\Codify.System.Windows.Tests\Data\MultiBooleanConverterTests.cs .\Tests\Codify.System.Windows.Tests\Data\VisibilityConverterTests.cs .\Tests\Codify.System.Windows.Tests\Controls\ViewModelTests.cs --verbosity minimal` exited 0.
 
 Primary areas:
 
