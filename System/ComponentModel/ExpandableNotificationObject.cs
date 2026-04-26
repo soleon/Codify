@@ -48,8 +48,8 @@ public class ExpandableNotificationObject : NotificationObject
     /// <summary>
     /// Called synchronously after <see cref="IsExpanded" /> changes.
     /// </summary>
-    /// <param name="isExpended">The new expanded state.</param>
-    protected virtual void OnExpansionChanged(bool isExpended)
+    /// <param name="isExpanded">The new expanded state.</param>
+    protected virtual void OnExpansionChanged(bool isExpanded)
     {
     }
 
@@ -57,8 +57,8 @@ public class ExpandableNotificationObject : NotificationObject
     /// Called after <see cref="IsExpanded"/> changes. The setter starts this hook without awaiting it;
     /// faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)"/>.
     /// </summary>
-    /// <param name="isExpended">The new expanded state.</param>
-    protected virtual global::System.Threading.Tasks.Task OnExpansionChangedAsync(bool isExpended)
+    /// <param name="isExpanded">The new expanded state.</param>
+    protected virtual global::System.Threading.Tasks.Task OnExpansionChangedAsync(bool isExpanded)
     {
         return global::System.Threading.Tasks.Task.CompletedTask;
     }

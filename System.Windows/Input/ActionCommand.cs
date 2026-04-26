@@ -14,10 +14,7 @@ public sealed class ActionCommand : SyncCommand
     {
         global::System.ArgumentNullException.ThrowIfNull(execute);
 
-        ExecuteAction = _ =>
-        {
-            if (CanExecute(null)) execute();
-        };
+        ExecuteAction = _ => execute();
         CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
     }
 }
@@ -41,7 +38,7 @@ public sealed class ActionCommand<T> : SyncCommand
         {
             if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                if (CanExecute(param)) execute(value);
+                execute(value);
             }
             else if (!CommandParameter<T>.IsNullInvalid(param))
             {

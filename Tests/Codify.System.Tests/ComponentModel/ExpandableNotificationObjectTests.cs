@@ -53,6 +53,13 @@ public class ExpandableNotificationObjectTests
     }
 
     [Fact]
+    public void ExpansionHookParameterNamesUseExpandedTerminology()
+    {
+        AssertExpansionHookParameterName("OnExpansionChanged");
+        AssertExpansionHookParameterName("OnExpansionChangedAsync");
+    }
+
+    [Fact]
     public async Task FaultedExpansionAsyncHookIsObservedWithoutThrowingFromSetter()
     {
         var expectedException = new InvalidOperationException("Expansion failed.");
@@ -82,18 +89,28 @@ public class ExpandableNotificationObjectTests
         Assert.Same(expectedException, observedException);
     }
 
+    private static void AssertExpansionHookParameterName(string methodName)
+    {
+        var method = typeof(ExpandableNotificationObject).GetMethod(
+            methodName,
+            global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.NonPublic);
+
+        var parameter = Assert.Single(method!.GetParameters());
+        Assert.Equal("isExpanded", parameter.Name);
+    }
+
     private sealed class TrackingExpandableNotificationObject : ExpandableNotificationObject
     {
         public List<string> Events { get; } = [];
 
-        protected override void OnExpansionChanged(bool isExpended)
+        protected override void OnExpansionChanged(bool isExpanded)
         {
-            Events.Add($"ExpansionChanged:{isExpended}");
+            Events.Add($"ExpansionChanged:{isExpanded}");
         }
 
-        protected override Task OnExpansionChangedAsync(bool isExpended)
+        protected override Task OnExpansionChangedAsync(bool isExpanded)
         {
-            Events.Add($"ExpansionChangedAsync:{isExpended}");
+            Events.Add($"ExpansionChangedAsync:{isExpanded}");
             return Task.CompletedTask;
         }
 
@@ -134,7 +151,7 @@ public class ExpandableNotificationObjectTests
             return new FaultingExpandableNotificationObject(exception, faultExpansion: false);
         }
 
-        protected override Task OnExpansionChangedAsync(bool isExpended)
+        protected override Task OnExpansionChangedAsync(bool isExpanded)
         {
             return _faultExpansion ? Task.FromException(_exception) : Task.CompletedTask;
         }
@@ -149,4 +166,5 @@ public class ExpandableNotificationObjectTests
             _observedException.TrySetResult(exception);
         }
     }
+
 }

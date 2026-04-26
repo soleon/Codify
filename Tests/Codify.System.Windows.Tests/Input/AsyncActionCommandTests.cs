@@ -44,6 +44,23 @@ public class AsyncActionCommandTests
     }
 
     [Fact]
+    public void NonGenericCommandEvaluatesCanExecuteOnceWhenExecuting()
+    {
+        var canExecuteCalls = 0;
+        var executed = false;
+        var command = new AsyncActionCommand(() =>
+        {
+            executed = true;
+            return Task.CompletedTask;
+        }, () => ++canExecuteCalls == 1);
+
+        command.Execute(null!);
+
+        Assert.True(executed);
+        Assert.Equal(1, canExecuteCalls);
+    }
+
+    [Fact]
     public void GenericValueTypeCommandRejectsNullParameter()
     {
         var executed = false;
@@ -113,6 +130,25 @@ public class AsyncActionCommandTests
 
         Assert.Equal(42, receivedByPredicate);
         Assert.Equal(42, await executed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public void GenericCommandEvaluatesCanExecuteOnceWhenExecuting()
+    {
+        var canExecuteCalls = 0;
+        var receivedByExecute = 0;
+        var command = new AsyncActionCommand<int>(
+            value =>
+            {
+                receivedByExecute = value;
+                return Task.CompletedTask;
+            },
+            _ => ++canExecuteCalls == 1);
+
+        command.Execute(42);
+
+        Assert.Equal(42, receivedByExecute);
+        Assert.Equal(1, canExecuteCalls);
     }
 
     [Fact]

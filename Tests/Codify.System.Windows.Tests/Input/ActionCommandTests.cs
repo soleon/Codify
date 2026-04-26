@@ -57,6 +57,21 @@ public class ActionCommandTests
     }
 
     [Fact]
+    public void NonGenericCommandEvaluatesCanExecuteOnceWhenExecuting()
+    {
+        var canExecuteCalls = 0;
+        var executed = false;
+        var command = new ActionCommand(
+            () => executed = true,
+            () => ++canExecuteCalls == 1);
+
+        command.Execute(null!);
+
+        Assert.True(executed);
+        Assert.Equal(1, canExecuteCalls);
+    }
+
+    [Fact]
     public void GenericValueTypeCommandRejectsNullParameterWithoutExecuting()
     {
         var executed = false;
@@ -110,6 +125,21 @@ public class ActionCommandTests
 
         Assert.Equal(42, receivedByPredicate);
         Assert.Equal(42, receivedByExecute);
+    }
+
+    [Fact]
+    public void GenericCommandEvaluatesCanExecuteOnceWhenExecuting()
+    {
+        var canExecuteCalls = 0;
+        var receivedByExecute = 0;
+        var command = new ActionCommand<int>(
+            value => receivedByExecute = value,
+            _ => ++canExecuteCalls == 1);
+
+        command.Execute(42);
+
+        Assert.Equal(42, receivedByExecute);
+        Assert.Equal(1, canExecuteCalls);
     }
 
     [Fact]

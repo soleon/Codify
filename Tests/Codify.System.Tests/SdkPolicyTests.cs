@@ -30,6 +30,10 @@ public class SdkPolicyTests
             "floats to the latest installed stable .NET SDK",
             readme,
             global::System.StringComparison.Ordinal);
+        Assert.Contains(
+            "net10.0-windows10.0.17763.0",
+            readme,
+            global::System.StringComparison.Ordinal);
     }
 
     [Fact]
@@ -68,7 +72,7 @@ public class SdkPolicyTests
 
     [Theory]
     [InlineData("System", "net10.0")]
-    [InlineData("System.Windows", "net10.0-windows")]
+    [InlineData("System.Windows", "net10.0-windows10.0.17763.0")]
     public void LibraryProjectsTargetLatestLtsOnlyWithoutCompatibilityBaselines(
         string projectName,
         string targetFramework)
@@ -89,6 +93,25 @@ public class SdkPolicyTests
         Assert.Empty(buildProps.Descendants("TargetFrameworks"));
         Assert.Empty(buildProps.Descendants("EnablePackageValidation"));
         Assert.Empty(buildProps.Descendants("PackageValidationBaselineVersion"));
+    }
+
+    [Fact]
+    public void WpfProjectsUseExplicitSupportedWindowsPlatformVersion()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var buildPropsPath = global::System.IO.Path.Combine(repositoryRoot, "Directory.Build.props");
+        var buildProps = global::System.Xml.Linq.XDocument.Load(buildPropsPath);
+
+        var propertyGroup = Assert.Single(
+            buildProps.Root!.Elements("PropertyGroup"),
+            element =>
+                ((string?)element.Attribute("Condition"))?.Contains(
+                    "$(MSBuildProjectName)' == 'System.Windows'",
+                    global::System.StringComparison.Ordinal) == true &&
+                element.Element("UseWPF") != null);
+
+        Assert.Equal("net10.0-windows10.0.17763.0", (string?)propertyGroup.Element("TargetFramework"));
+        Assert.Equal("10.0.17763.0", (string?)propertyGroup.Element("SupportedOSPlatformVersion"));
     }
 
     private static string FindRepositoryRoot()

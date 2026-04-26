@@ -16,7 +16,7 @@ public sealed class AsyncActionCommand : AsyncCommand
     {
         global::System.ArgumentNullException.ThrowIfNull(execute);
 
-        ExecuteFunc = _ => CanExecute(null) ? execute() : global::System.Threading.Tasks.Task.CompletedTask;
+        ExecuteFunc = _ => execute();
         CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
     }
 }
@@ -42,7 +42,7 @@ public sealed class AsyncActionCommand<T> : AsyncCommand
         {
             if (CommandParameter<T>.TryGetValue(param, out var value))
             {
-                return CanExecute(param) ? execute(value) : global::System.Threading.Tasks.Task.CompletedTask;
+                return execute(value);
             }
 
             return CommandParameter<T>.IsNullInvalid(param)
