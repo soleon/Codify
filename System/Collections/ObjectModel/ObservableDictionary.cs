@@ -16,6 +16,8 @@ public class ObservableDictionary<TKey, TValue> :
     private static readonly global::System.Collections.Generic.EqualityComparer<TValue> ValueComparer =
         global::System.Collections.Generic.EqualityComparer<TValue>.Default;
 
+    private static readonly bool IsValueType = typeof(TValue).IsValueType;
+
     private readonly global::System.Collections.Generic.Dictionary<TKey, TValue> _dictionary = new();
     private readonly global::System.Func<TValue, TKey> _getKey;
     private readonly global::System.Threading.Lock _syncRoot = new();
@@ -337,7 +339,7 @@ public class ObservableDictionary<TKey, TValue> :
                 return index;
             }
 
-            if (KeyComparer.Equals(_getKey(item), key) && ValueComparer.Equals(item, value))
+            if (IsValueType && KeyComparer.Equals(_getKey(item), key) && ValueComparer.Equals(item, value))
             {
                 return index;
             }
@@ -374,7 +376,7 @@ public class ObservableDictionary<TKey, TValue> :
     private void RemoveDictionaryEntry(TValue item)
     {
         var key = _getKey(item);
-        if (_dictionary.TryGetValue(key, out var value) && ValueComparer.Equals(value, item))
+        if (_dictionary.TryGetValue(key, out var value) && IsSameStoredItem(value, item))
         {
             _dictionary.Remove(key);
             return;
@@ -384,7 +386,7 @@ public class ObservableDictionary<TKey, TValue> :
         var shouldRemove = false;
         foreach (var pair in _dictionary)
         {
-            if (ReferenceEquals(pair.Value, item))
+            if (IsSameStoredItem(pair.Value, item))
             {
                 keyToRemove = pair.Key;
                 shouldRemove = true;

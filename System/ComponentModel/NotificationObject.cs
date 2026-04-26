@@ -15,6 +15,8 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
         global::System.ComponentModel.PropertyChangedEventArgs> PropertyChangedEventArgsCache =
         new(global::System.StringComparer.Ordinal);
 
+    private static readonly global::System.Threading.Lock PropertyChangedEventArgsCacheLock = new();
+
     /// <summary>
     /// Occurs when a property value changes.
     /// </summary>
@@ -83,10 +85,21 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
             return args;
         }
 
-        return PropertyChangedEventArgsCache.Count < MaxCachedPropertyChangedEventArgs
-            ? PropertyChangedEventArgsCache.GetOrAdd(
-                propertyName,
-                static name => new global::System.ComponentModel.PropertyChangedEventArgs(name))
-            : new global::System.ComponentModel.PropertyChangedEventArgs(propertyName);
+        lock (PropertyChangedEventArgsCacheLock)
+        {
+            if (PropertyChangedEventArgsCache.TryGetValue(propertyName, out args))
+            {
+                return args;
+            }
+
+            if (PropertyChangedEventArgsCache.Count >= MaxCachedPropertyChangedEventArgs)
+            {
+                return new global::System.ComponentModel.PropertyChangedEventArgs(propertyName);
+            }
+
+            args = new global::System.ComponentModel.PropertyChangedEventArgs(propertyName);
+            PropertyChangedEventArgsCache[propertyName] = args;
+            return args;
+        }
     }
 }

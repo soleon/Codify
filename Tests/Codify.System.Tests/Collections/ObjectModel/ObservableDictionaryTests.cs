@@ -80,6 +80,43 @@ public class ObservableDictionaryTests
     }
 
     [Fact]
+    public void RemoveKeyUsesStoredReferenceWhenEqualItemKeyMutatesToRemovedKey()
+    {
+        var dictionary = CreateDictionary<MutableEqualByGroupItem>();
+        var first = new MutableEqualByGroupItem(1, "same");
+        var second = new MutableEqualByGroupItem(2, "same");
+        dictionary.Add(first);
+        dictionary.Add(second);
+        first.Key = 2;
+
+        var removed = dictionary.Remove(2);
+
+        Assert.True(removed);
+        Assert.True(dictionary.ContainsKey(1));
+        Assert.False(dictionary.ContainsKey(2));
+        Assert.Collection((IEnumerable<MutableEqualByGroupItem>)dictionary, value => Assert.Same(first, value));
+        Assert.Same(first, dictionary[1]);
+    }
+
+    [Fact]
+    public void RemoveAtRemovesStoredReferenceWhenEqualItemKeyMutatesToAnotherKey()
+    {
+        var dictionary = CreateDictionary<MutableEqualByGroupItem>();
+        var first = new MutableEqualByGroupItem(1, "same");
+        var second = new MutableEqualByGroupItem(2, "same");
+        dictionary.Add(first);
+        dictionary.Add(second);
+        first.Key = 2;
+
+        dictionary.RemoveAt(0);
+
+        Assert.False(dictionary.ContainsKey(1));
+        Assert.True(dictionary.ContainsKey(2));
+        Assert.Collection((IEnumerable<MutableEqualByGroupItem>)dictionary, value => Assert.Same(second, value));
+        Assert.Same(second, dictionary[2]);
+    }
+
+    [Fact]
     public void RemoveMissingKeyReturnsFalseAndDoesNotMutate()
     {
         var dictionary = CreateDictionary();
@@ -415,6 +452,29 @@ public class ObservableDictionaryTests
         public override bool Equals(object? obj)
         {
             return obj is EqualByGroupItem item && _group == item._group;
+        }
+
+        public override int GetHashCode()
+        {
+            return _group.GetHashCode(StringComparison.Ordinal);
+        }
+    }
+
+    private sealed class MutableEqualByGroupItem : IKeyedItem
+    {
+        private readonly string _group;
+
+        public MutableEqualByGroupItem(int key, string group)
+        {
+            Key = key;
+            _group = group;
+        }
+
+        public int Key { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is MutableEqualByGroupItem item && _group == item._group;
         }
 
         public override int GetHashCode()

@@ -128,6 +128,8 @@ public class NotificationObjectTests
     [Fact]
     public void DynamicPropertyNamesDoNotGrowSharedEventArgsCacheWithoutBound()
     {
+        ClearCachedPropertyChangedEventArgs();
+
         var target = new TestNotificationObject();
         target.PropertyChanged += (_, _) => { };
 
@@ -139,17 +141,69 @@ public class NotificationObjectTests
         Assert.True(GetCachedPropertyChangedEventArgsCount() <= 1024);
     }
 
+    [Fact]
+    public async Task ConcurrentDynamicPropertyNamesDoNotGrowSharedEventArgsCacheWithoutBound()
+    {
+        const int prefilledPropertyCount = 1_020;
+        const int concurrentPropertyCount = 256;
+        var highestCacheCount = 0;
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            ClearCachedPropertyChangedEventArgs();
+
+            var target = new TestNotificationObject();
+            target.PropertyChanged += (_, _) => { };
+            for (var index = 0; index < prefilledPropertyCount; index++)
+            {
+                target.RaisePropertyChanged($"PrefilledDynamicProperty{attempt}_{index}");
+            }
+
+            using var start = new Barrier(concurrentPropertyCount + 1);
+            var tasks = new Task[concurrentPropertyCount];
+            for (var index = 0; index < tasks.Length; index++)
+            {
+                var propertyIndex = index;
+                tasks[index] = Task.Factory.StartNew(
+                    () =>
+                    {
+                        start.SignalAndWait(TestContext.Current.CancellationToken);
+                        target.RaisePropertyChanged($"ConcurrentDynamicProperty{attempt}_{propertyIndex}");
+                    },
+                    TestContext.Current.CancellationToken,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default);
+            }
+
+            start.SignalAndWait(TestContext.Current.CancellationToken);
+            await Task.WhenAll(tasks);
+            highestCacheCount = Math.Max(highestCacheCount, GetCachedPropertyChangedEventArgsCount());
+        }
+
+        Assert.True(highestCacheCount <= 1024);
+    }
+
     private static int GetCachedPropertyChangedEventArgsCount()
+    {
+        return GetCachedPropertyChangedEventArgs().Count;
+    }
+
+    private static void ClearCachedPropertyChangedEventArgs()
+    {
+        GetCachedPropertyChangedEventArgs().Clear();
+    }
+
+    private static global::System.Collections.Concurrent.ConcurrentDictionary<
+        string,
+        global::System.ComponentModel.PropertyChangedEventArgs> GetCachedPropertyChangedEventArgs()
     {
         var field = typeof(NotificationObject).GetField(
             "PropertyChangedEventArgsCache",
             global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
         var cache = field?.GetValue(null) ??
                     throw new InvalidOperationException("Could not find property changed event args cache.");
-        var countProperty = cache.GetType().GetProperty(nameof(ICollection<object>.Count)) ??
-                            throw new InvalidOperationException("Could not find cache count property.");
-
-        return (int)countProperty.GetValue(cache)!;
+        return (global::System.Collections.Concurrent.ConcurrentDictionary<
+            string,
+            global::System.ComponentModel.PropertyChangedEventArgs>)cache;
     }
 
     private static List<string?> TrackPropertyChanges(NotificationObject target)

@@ -54,6 +54,83 @@ public class WindowViewModelTests
         });
     }
 
+    [Fact]
+    public void ShowAssignsOwnerAndDisplaysWindow()
+    {
+        RunOnStaThread(() =>
+        {
+            var owner = new TestWindow();
+            var viewModel = new TrackingWindowViewModel();
+            var window = viewModel.View;
+
+            owner.Show();
+            viewModel.Show(owner);
+
+            Assert.Same(owner, window.Owner);
+            Assert.True(window.IsVisible);
+
+            window.Close();
+            owner.Close();
+        });
+    }
+
+    [Fact]
+    public void HideHidesCurrentWindow()
+    {
+        RunOnStaThread(() =>
+        {
+            var viewModel = new TrackingWindowViewModel();
+            var window = viewModel.View;
+
+            viewModel.Show();
+            viewModel.Hide();
+
+            Assert.False(window.IsVisible);
+
+            window.Close();
+        });
+    }
+
+    [Fact]
+    public void CloseClosesCurrentWindowAndClearsView()
+    {
+        RunOnStaThread(() =>
+        {
+            var viewModel = new TrackingWindowViewModel();
+            var closedWindow = viewModel.View;
+
+            viewModel.Show();
+            viewModel.Close();
+
+            Assert.NotSame(closedWindow, viewModel.View);
+        });
+    }
+
+    [Fact]
+    public void ShowDialogAssignsOwnerAndReturnsDialogResult()
+    {
+        RunOnStaThread(() =>
+        {
+            var owner = new TestWindow();
+            var viewModel = new TrackingWindowViewModel();
+            var window = viewModel.View;
+            window.Loaded += (_, _) =>
+            {
+                window.Dispatcher.BeginInvoke(
+                    () => viewModel.Close(true),
+                    global::System.Windows.Threading.DispatcherPriority.Background);
+            };
+
+            owner.Show();
+            var result = viewModel.ShowDialog(owner);
+
+            Assert.True(result);
+            Assert.Same(owner, window.Owner);
+
+            owner.Close();
+        });
+    }
+
     private static void RunOnStaThread(Action action)
     {
         Exception? exception = null;
