@@ -19,13 +19,26 @@ public class ViewModel<T> : NotificationObject where T : global::System.Windows.
         get { return _view ??= CreateNewView(); }
         set
         {
+            if (value is not null)
+            {
+                value.DataContext = this;
+            }
+
             var old = _view;
             if (!SetValue(ref _view, value)) return;
 
-            old?.Loaded -= OnLoaded;
-            old?.Unloaded -= OnUnloaded;
-            value?.Loaded += OnLoaded;
-            value?.Unloaded += OnUnloaded;
+            if (old != null)
+            {
+                old.Loaded -= OnLoaded;
+                old.Unloaded -= OnUnloaded;
+            }
+
+            if (value != null)
+            {
+                value.Loaded += OnLoaded;
+                value.Unloaded += OnUnloaded;
+            }
+
             OnViewChanged(old, value);
         }
     }

@@ -66,4 +66,34 @@ public class BooleanConverterTests
 
         Assert.Same(Binding.DoNothing, result);
     }
+
+    [Fact]
+    public void ConverterImplementationDoesNotUseReflectionBackedDefaultCache()
+    {
+        var source = global::System.IO.File.ReadAllText(FindBooleanConverterSourcePath());
+
+        Assert.DoesNotContain("Activator.CreateInstance", source, global::System.StringComparison.Ordinal);
+        Assert.DoesNotContain("ConcurrentDictionary", source, global::System.StringComparison.Ordinal);
+    }
+
+    private static string FindBooleanConverterSourcePath()
+    {
+        var directory = new global::System.IO.DirectoryInfo(global::System.AppContext.BaseDirectory);
+        while (directory != null)
+        {
+            var candidate = global::System.IO.Path.Combine(
+                directory.FullName,
+                "System.Windows",
+                "Data",
+                "BooleanConverter.cs");
+            if (global::System.IO.File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new global::System.InvalidOperationException("Could not locate BooleanConverter.cs.");
+    }
 }

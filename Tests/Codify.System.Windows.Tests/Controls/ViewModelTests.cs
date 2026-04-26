@@ -49,6 +49,20 @@ public class ViewModelTests
     }
 
     [Fact]
+    public void SettingViewAttachesViewModelAsReplacementDataContext()
+    {
+        RunOnStaThread(() =>
+        {
+            var viewModel = new TrackingViewModel();
+            var replacement = new TestElement();
+
+            viewModel.View = replacement;
+
+            Assert.Same(viewModel, replacement.DataContext);
+        });
+    }
+
+    [Fact]
     public void SettingSameViewDoesNotRaisePropertyChanged()
     {
         RunOnStaThread(() =>

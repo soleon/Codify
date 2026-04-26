@@ -16,7 +16,10 @@ Codify is a generic WPF and .NET library. These instructions apply to all AI age
 ## Dependency and Platform Policy
 
 - Prefer current stable NuGet packages and supported Microsoft platforms.
-- Verify compatibility before changing package versions, target frameworks, SDK versions, or tooling.
+- Target only the latest LTS .NET runtime and WPF platform supported by the repository. Do not multi-target older .NET versions, add compatibility target frameworks, or add package-validation baselines solely to preserve consumers on previous LTS releases.
+- When the latest LTS target changes, dropping older target frameworks is intentional for this repository and is not, by itself, a compatibility violation.
+- Public API compatibility means preserving the API surface for the repository's current target framework line unless an intentional break is documented; it does not require preserving older target frameworks.
+- Verify compatibility within the current latest-LTS target before changing package versions, target frameworks, SDK versions, or tooling.
 - Avoid adding dependencies unless they clearly improve correctness, performance, maintainability, testability, or platform support.
 - Do not introduce large dependencies for small utilities.
 - When a dependency cannot be updated to the latest stable version, document the compatibility reason.

@@ -5,9 +5,6 @@ namespace Codify.System.Windows.Data;
 /// </summary>
 public class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
 {
-    private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object?>
-        DefaultValues = new();
-
     /// <summary>
     /// Converts the supplied value to a Boolean value for a binding target.
     /// </summary>
@@ -59,14 +56,38 @@ public class BooleanConverter : StaticInstance<BooleanConverter>, global::System
         return global::System.Windows.Data.Binding.DoNothing;
     }
 
-    private static object? GetDefaultValue(global::System.Type type)
-    {
-        return DefaultValues.GetOrAdd(type, static valueType => global::System.Activator.CreateInstance(valueType));
-    }
-
     private static bool IsDefaultValue(object value)
     {
+        return value switch
+        {
+            char typedValue => typedValue == default,
+            byte typedValue => typedValue == default,
+            sbyte typedValue => typedValue == default,
+            short typedValue => typedValue == default,
+            ushort typedValue => typedValue == default,
+            int typedValue => typedValue == default,
+            uint typedValue => typedValue == default,
+            long typedValue => typedValue == default,
+            ulong typedValue => typedValue == default,
+            float typedValue => typedValue == default,
+            double typedValue => typedValue == default,
+            decimal typedValue => typedValue == default,
+            global::System.IntPtr typedValue => typedValue == default,
+            global::System.UIntPtr typedValue => typedValue == default,
+            global::System.DateTime typedValue => typedValue == default,
+            global::System.DateTimeOffset typedValue => typedValue == default,
+            global::System.TimeSpan typedValue => typedValue == default,
+            global::System.DateOnly typedValue => typedValue == default,
+            global::System.TimeOnly typedValue => typedValue == default,
+            global::System.Guid typedValue => typedValue == default,
+            _ => IsDefaultStructValue(value)
+        };
+    }
+
+    private static bool IsDefaultStructValue(object value)
+    {
         var type = value.GetType();
-        return type.IsValueType && Equals(GetDefaultValue(type), value);
+        return type.IsValueType &&
+               Equals(global::System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(type), value);
     }
 }

@@ -66,6 +66,31 @@ public class SdkPolicyTests
             global::System.StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("System", "net10.0")]
+    [InlineData("System.Windows", "net10.0-windows")]
+    public void LibraryProjectsTargetLatestLtsOnlyWithoutCompatibilityBaselines(
+        string projectName,
+        string targetFramework)
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var buildPropsPath = global::System.IO.Path.Combine(repositoryRoot, "Directory.Build.props");
+        var buildProps = global::System.Xml.Linq.XDocument.Load(buildPropsPath);
+
+        var propertyGroup = Assert.Single(
+            buildProps.Root!.Elements("PropertyGroup"),
+            element =>
+                ((string?)element.Attribute("Condition"))?.Contains(
+                    $"$(MSBuildProjectName)' == '{projectName}'",
+                    global::System.StringComparison.Ordinal) == true &&
+                element.Element("TargetFramework") != null);
+
+        Assert.Equal(targetFramework, (string?)propertyGroup.Element("TargetFramework"));
+        Assert.Empty(buildProps.Descendants("TargetFrameworks"));
+        Assert.Empty(buildProps.Descendants("EnablePackageValidation"));
+        Assert.Empty(buildProps.Descendants("PackageValidationBaselineVersion"));
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new global::System.IO.DirectoryInfo(global::System.AppContext.BaseDirectory);

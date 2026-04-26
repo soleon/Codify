@@ -12,6 +12,8 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
 
     private readonly global::System.ComponentModel.PropertyChangedEventArgs _indexerPropertyChangedEventArgs = new("Item[]");
 
+    private bool _hasPendingChanges;
+
     private int _updateDepth;
 
     /// <summary>
@@ -38,7 +40,11 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     {
         lock (_collectionUpdateLock)
         {
-            if (_updateDepth > 0) return;
+            if (_updateDepth > 0)
+            {
+                _hasPendingChanges = true;
+                return;
+            }
         }
 
         base.OnPropertyChanged(e);
@@ -56,7 +62,11 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
         lock (_collectionUpdateLock)
         {
             _updateDepth--;
-            shouldNotify = _updateDepth == 0;
+            shouldNotify = _updateDepth == 0 && _hasPendingChanges;
+            if (_updateDepth == 0)
+            {
+                _hasPendingChanges = false;
+            }
         }
 
         if (!shouldNotify) return;
@@ -76,7 +86,11 @@ public class BatchObservableCollection<T> : global::System.Collections.ObjectMod
     {
         lock (_collectionUpdateLock)
         {
-            if (_updateDepth > 0) return;
+            if (_updateDepth > 0)
+            {
+                _hasPendingChanges = true;
+                return;
+            }
         }
 
         NotifyCollectionChanged(e);

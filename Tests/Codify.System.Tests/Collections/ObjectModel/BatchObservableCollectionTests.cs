@@ -45,6 +45,22 @@ public class BatchObservableCollectionTests
     }
 
     [Fact]
+    public void CompletedUpdateWithoutChangesDoesNotRaiseResetNotification()
+    {
+        var collection = new BatchObservableCollection<int> { 1 };
+        var collectionEvents = TrackCollectionChanges(collection);
+        var propertyNames = TrackPropertyChanges(collection);
+
+        using (collection.BeginUpdate())
+        {
+        }
+
+        Assert.Empty(collectionEvents);
+        Assert.Empty(propertyNames);
+        Assert.Equal([1], collection);
+    }
+
+    [Fact]
     public void CompletedUpdateRaisesIndexerPropertyNotification()
     {
         var collection = new BatchObservableCollection<int> { 1 };
