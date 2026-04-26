@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Data;
 using Codify.System.Windows.Data;
 
 namespace Codify.System.Windows.Tests.Data;
@@ -64,6 +65,18 @@ public class MultiBooleanConverterTests
             CultureInfo.InvariantCulture);
 
         Assert.Same(DependencyProperty.UnsetValue, result);
+    }
+
+    [Fact]
+    public void ConvertReturnsDoNothingWhenAnyValueIsDoNothing()
+    {
+        var result = MultiBooleanConverter.Instance.Convert(
+            [true, Binding.DoNothing],
+            null!,
+            "fallback",
+            CultureInfo.InvariantCulture);
+
+        Assert.Same(Binding.DoNothing, result);
     }
 
     [Fact]

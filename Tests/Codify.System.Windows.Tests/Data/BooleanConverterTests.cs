@@ -60,6 +60,18 @@ public class BooleanConverterTests
     }
 
     [Fact]
+    public void ConvertReturnsDoNothingUnchanged()
+    {
+        var result = BooleanConverter.Instance.Convert(
+            Binding.DoNothing,
+            null!,
+            "invert",
+            CultureInfo.InvariantCulture);
+
+        Assert.Same(Binding.DoNothing, result);
+    }
+
+    [Fact]
     public void ConvertBackReturnsDoNothing()
     {
         var result = BooleanConverter.Instance.ConvertBack(true, null!, null!, CultureInfo.InvariantCulture);

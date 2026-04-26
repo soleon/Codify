@@ -71,11 +71,11 @@ public class DeferrableObservableCollection<T> : global::System.Collections.Obje
 
         if (!shouldNotify) return;
 
+        OnPropertyChanged(_countPropertyChangedEventArgs);
+        OnPropertyChanged(_indexerPropertyChangedEventArgs);
         NotifyCollectionChanged(
             new global::System.Collections.Specialized.NotifyCollectionChangedEventArgs(
                 global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
-        OnPropertyChanged(_countPropertyChangedEventArgs);
-        OnPropertyChanged(_indexerPropertyChangedEventArgs);
     }
 
     /// <summary>

@@ -273,7 +273,8 @@ public class ObservableDictionary<TKey, TValue> :
     {
         lock (_syncRoot)
         {
-            SetItem(index, _getKey(Items[index]), _getKey(item), item);
+            var oldItem = Items[index];
+            SetItem(index, GetStoredItemKey(oldItem), _getKey(item), item);
         }
     }
 
@@ -343,6 +344,31 @@ public class ObservableDictionary<TKey, TValue> :
         }
 
         return -1;
+    }
+
+    private TKey GetStoredItemKey(TValue item)
+    {
+        var itemKey = _getKey(item);
+        if (_dictionary.TryGetValue(itemKey, out var value) && IsSameStoredItem(value, item))
+        {
+            return itemKey;
+        }
+
+        foreach (var pair in _dictionary)
+        {
+            if (IsSameStoredItem(pair.Value, item))
+            {
+                return pair.Key;
+            }
+        }
+
+        return itemKey;
+    }
+
+    private static bool IsSameStoredItem(TValue storedItem, TValue item)
+    {
+        return ReferenceEquals(storedItem, item) ||
+               (typeof(TValue).IsValueType && ValueComparer.Equals(storedItem, item));
     }
 
     private void RemoveDictionaryEntry(TValue item)

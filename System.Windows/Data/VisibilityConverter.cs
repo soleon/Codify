@@ -25,7 +25,8 @@ public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, g
         global::System.Globalization.CultureInfo culture)
     {
         var result = BooleanConverter.Instance.Convert(value, targetType, parameter, culture);
-        return result == global::System.Windows.DependencyProperty.UnsetValue
+        return result == global::System.Windows.DependencyProperty.UnsetValue ||
+               result == global::System.Windows.Data.Binding.DoNothing
             ? result
             : result is true
                 ? global::System.Windows.Visibility.Visible

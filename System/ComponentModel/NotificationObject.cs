@@ -5,6 +5,8 @@ namespace Codify.System.ComponentModel;
 /// </summary>
 public class NotificationObject : global::System.ComponentModel.INotifyPropertyChanged
 {
+    private const int MaxCachedPropertyChangedEventArgs = 1024;
+
     private static readonly global::System.ComponentModel.PropertyChangedEventArgs NullPropertyChangedEventArgs =
         new(null);
 
@@ -71,10 +73,20 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
     private static global::System.ComponentModel.PropertyChangedEventArgs GetPropertyChangedEventArgs(
         string? propertyName)
     {
-        return propertyName is null
-            ? NullPropertyChangedEventArgs
-            : PropertyChangedEventArgsCache.GetOrAdd(
+        if (propertyName is null)
+        {
+            return NullPropertyChangedEventArgs;
+        }
+
+        if (PropertyChangedEventArgsCache.TryGetValue(propertyName, out var args))
+        {
+            return args;
+        }
+
+        return PropertyChangedEventArgsCache.Count < MaxCachedPropertyChangedEventArgs
+            ? PropertyChangedEventArgsCache.GetOrAdd(
                 propertyName,
-                static name => new global::System.ComponentModel.PropertyChangedEventArgs(name));
+                static name => new global::System.ComponentModel.PropertyChangedEventArgs(name))
+            : new global::System.ComponentModel.PropertyChangedEventArgs(propertyName);
     }
 }

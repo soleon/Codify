@@ -28,9 +28,10 @@ public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, glob
         foreach (var value in values)
         {
             var result = BooleanConverter.Convert(value);
-            if (result == global::System.Windows.DependencyProperty.UnsetValue)
+            if (result == global::System.Windows.DependencyProperty.UnsetValue ||
+                result == global::System.Windows.Data.Binding.DoNothing)
             {
-                return global::System.Windows.DependencyProperty.UnsetValue;
+                return result;
             }
 
             if (!Equals(result, true))

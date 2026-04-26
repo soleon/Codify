@@ -50,6 +50,18 @@ public class VisibilityConverterTests
     }
 
     [Fact]
+    public void ConvertReturnsDoNothingUnchanged()
+    {
+        var result = VisibilityConverter.Instance.Convert(
+            Binding.DoNothing,
+            typeof(Visibility),
+            null!,
+            CultureInfo.InvariantCulture);
+
+        Assert.Same(Binding.DoNothing, result);
+    }
+
+    [Fact]
     public void ConvertBackReturnsDoNothing()
     {
         var result = VisibilityConverter.Instance.ConvertBack(

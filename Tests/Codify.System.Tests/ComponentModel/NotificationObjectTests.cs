@@ -125,6 +125,33 @@ public class NotificationObjectTests
         Assert.Equal(["Primary"], propertyNames);
     }
 
+    [Fact]
+    public void DynamicPropertyNamesDoNotGrowSharedEventArgsCacheWithoutBound()
+    {
+        var target = new TestNotificationObject();
+        target.PropertyChanged += (_, _) => { };
+
+        for (var index = 0; index < 2_000; index++)
+        {
+            target.RaisePropertyChanged($"DynamicProperty{index}");
+        }
+
+        Assert.True(GetCachedPropertyChangedEventArgsCount() <= 1024);
+    }
+
+    private static int GetCachedPropertyChangedEventArgsCount()
+    {
+        var field = typeof(NotificationObject).GetField(
+            "PropertyChangedEventArgsCache",
+            global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
+        var cache = field?.GetValue(null) ??
+                    throw new InvalidOperationException("Could not find property changed event args cache.");
+        var countProperty = cache.GetType().GetProperty(nameof(ICollection<object>.Count)) ??
+                            throw new InvalidOperationException("Could not find cache count property.");
+
+        return (int)countProperty.GetValue(cache)!;
+    }
+
     private static List<string?> TrackPropertyChanges(NotificationObject target)
     {
         var propertyNames = new List<string?>();
@@ -242,6 +269,11 @@ public class NotificationObjectTests
         public bool SetPrimaryWithNullDependents(string value)
         {
             return SetValue(ref _primary, value, nameof(Primary), null!);
+        }
+
+        public void RaisePropertyChanged(string propertyName)
+        {
+            OnPropertyChanged(propertyName);
         }
     }
 }

@@ -75,6 +75,34 @@ public class DeferrableObservableCollectionTests
     }
 
     [Fact]
+    public void CompletedUpdateRaisesPropertyChangesBeforeCollectionReset()
+    {
+        var collection = new DeferrableObservableCollection<int> { 1 };
+        var events = new List<string>();
+        ((INotifyPropertyChanged)collection).PropertyChanged += (_, args) =>
+        {
+            events.Add($"PropertyChanged:{args.PropertyName}");
+        };
+        collection.CollectionChanged += (_, args) =>
+        {
+            events.Add($"CollectionChanged:{args.Action}");
+        };
+
+        using (collection.BeginUpdate())
+        {
+            collection.Add(2);
+        }
+
+        Assert.Equal(
+            [
+                "PropertyChanged:Count",
+                "PropertyChanged:Item[]",
+                "CollectionChanged:Reset"
+            ],
+            events);
+    }
+
+    [Fact]
     public void BeginUpdateReturnsHandleThatCanBeDisposedExplicitly()
     {
         var collection = new DeferrableObservableCollection<int>();

@@ -185,6 +185,24 @@ public class ObservableDictionaryTests
     }
 
     [Fact]
+    public void CollectionIndexerReplacingMutatedItemKeyRemovesOriginalDictionaryEntry()
+    {
+        var dictionary = CreateDictionary<MutableKeyItem>();
+        var item = new MutableKeyItem(1, "one");
+        dictionary.Add(item);
+        item.Key = 2;
+        var replacement = new MutableKeyItem(3, "three");
+
+        SetValueAt(dictionary, 0, replacement);
+
+        Assert.False(dictionary.ContainsKey(1));
+        Assert.False(dictionary.ContainsKey(2));
+        Assert.True(dictionary.ContainsKey(3));
+        Assert.Same(replacement, dictionary[3]);
+        Assert.Collection((IEnumerable<MutableKeyItem>)dictionary, value => Assert.Same(replacement, value));
+    }
+
+    [Fact]
     public void CollectionIndexerChangingToExistingKeyThrowsAndDoesNotMutate()
     {
         var dictionary = CreateDictionary();
@@ -368,6 +386,19 @@ public class ObservableDictionaryTests
     }
 
     private sealed record TestItem(int Key, string Value) : IKeyedItem;
+
+    private sealed class MutableKeyItem : IKeyedItem
+    {
+        public MutableKeyItem(int key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public int Key { get; set; }
+
+        public string Value { get; }
+    }
 
     private sealed class EqualByGroupItem : IKeyedItem
     {

@@ -22,7 +22,11 @@ public class BooleanConverter : StaticInstance<BooleanConverter>, global::System
         object? parameter = null,
         global::System.Globalization.CultureInfo? culture = null)
     {
-        if (value == global::System.Windows.DependencyProperty.UnsetValue) return value;
+        if (value == global::System.Windows.DependencyProperty.UnsetValue ||
+            value == global::System.Windows.Data.Binding.DoNothing)
+        {
+            return value;
+        }
 
         var isInvert = parameter is string stringValue &&
                        stringValue.Equals("invert", global::System.StringComparison.OrdinalIgnoreCase);

@@ -1,7 +1,7 @@
 namespace Codify.System.Collections.ObjectModel;
 
 /// <summary>
-///     A read only observable collection that synchronises to a source collection of a different item type.
+///     An observable collection that synchronises to a source collection of a different item type.
 /// </summary>
 /// <typeparam name="TSource"> The type of the items in the source collection.</typeparam>
 /// <typeparam name="TTarget"> The type of the items in this collection.</typeparam>
