@@ -381,7 +381,59 @@ dotnet test Codify.slnx --no-build
 
 ### 6. Review Transitive Test Package Freshness
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Verified that direct test package references have no available stable updates
+  from the configured NuGet sources.
+- Left outdated test-only transitive packages unresolved because they are owned
+  by current direct test packages and the package graph is clean for vulnerable
+  and deprecated packages.
+- Documented the policy in `README.md` and added a focused repository-policy
+  test that guards against adding explicit references to those transitives only
+  to silence freshness reports.
+
+Verification:
+
+```powershell
+dotnet list Codify.slnx package --outdated
+# Passed: all projects had no package updates from the configured sources.
+
+dotnet list Codify.slnx package --include-transitive --outdated
+# Passed: direct packages had no updates; test projects still report outdated
+# test-only transitives including Microsoft.ApplicationInsights,
+# Microsoft.Bcl.AsyncInterfaces, Microsoft.Testing.* packages, and
+# Newtonsoft.Json.
+
+dotnet list Codify.slnx package --vulnerable
+# Passed: all projects had no vulnerable packages.
+
+dotnet list Codify.slnx package --deprecated
+# Passed: all projects had no deprecated packages.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter RepositoryDocumentsTestOnlyTransitivePackageFreshnessPolicy
+# Red before documentation: failed because README.md did not contain the
+# test-only transitive package freshness policy.
+# Green after documentation: passed with 1 test passed, 0 failed, 0 skipped.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter SdkPolicyTests
+# Passed: 2 tests passed, 0 failed, 0 skipped.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: Codify.System.Tests had 62 tests passed, and
+# Codify.System.Windows.Tests had 55 tests passed.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed: exited with no formatting changes.
+
+git diff --check
+# Passed; Git may print line-ending normalization warnings.
+```
 
 Primary files:
 
