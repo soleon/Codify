@@ -318,7 +318,40 @@ dotnet build Codify.slnx --no-restore
 
 ### 5. Decide and Document SDK Pinning Policy
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in the current uncommitted workspace on branch `master`.
+- Kept SDK selection intentionally floating rather than adding `global.json`,
+  because this library targets the current stable frameworks and should pick up
+  compatible stable SDK, tooling, and analyzer fixes without a repository
+  update.
+- Documented the policy in `README.md` and added a focused repository-policy
+  test that guards the no-`global.json` decision and README policy text.
+
+Verification:
+
+```powershell
+dotnet --info
+# Passed: SDK 10.0.202 is installed and no global.json file was found.
+
+dotnet test Tests\Codify.System.Tests\Codify.System.Tests.csproj --no-restore --filter SdkPolicyTests
+# Red before documentation: failed because README.md did not contain the floating SDK policy.
+# Green after documentation: passed with 1 test passed, 0 failed, 0 skipped.
+
+dotnet build Codify.slnx
+# Passed: build succeeded with 0 warnings and 0 errors.
+
+dotnet test Codify.slnx --no-build
+# Passed: Codify.System.Tests had 61 tests passed, and Codify.System.Windows.Tests had 55 tests passed.
+
+dotnet format Codify.slnx --verify-no-changes --verbosity minimal
+# Passed: exited with no formatting changes.
+
+git diff --check
+# Passed; Git printed line-ending normalization warnings for AGENT_BACKLOG.md and README.md.
+```
 
 Primary files:
 

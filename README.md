@@ -66,4 +66,4 @@ public sealed class ShellViewModel
 
 - Public APIs are intended to remain compatible across patch releases.
 - `Codify.System.Windows` requires Windows because it targets WPF.
-- Packages are built and validated with the current stable .NET SDK for the target frameworks listed above.
+- The repository intentionally does not include a `global.json` SDK pin. SDK selection floats to the latest installed stable .NET SDK that can build `net10.0` and `net10.0-windows`, so package builds pick up supported SDK, tooling, and analyzer fixes without a repository update. Target frameworks and package versions remain explicit to preserve package compatibility.
