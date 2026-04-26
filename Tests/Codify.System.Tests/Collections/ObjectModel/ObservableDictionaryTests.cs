@@ -234,6 +234,78 @@ public class ObservableDictionaryTests
     }
 
     [Fact]
+    public void RejectedReentrantRemoveAtDoesNotChangeDictionaryEntries()
+    {
+        var dictionary = CreateDictionary();
+        var first = new TestItem(1, "one");
+        var second = new TestItem(2, "two");
+        dictionary.Add(first);
+        Exception? reentrantException = null;
+        dictionary.CollectionChanged += (_, _) =>
+        {
+            reentrantException ??= Record.Exception(() => dictionary.RemoveAt(0));
+        };
+        dictionary.CollectionChanged += (_, _) => { };
+
+        dictionary.Add(second);
+
+        Assert.IsType<InvalidOperationException>(reentrantException);
+        Assert.Equal(2, dictionary.Count);
+        Assert.Same(first, GetValueAt(dictionary, 0));
+        Assert.Same(second, GetValueAt(dictionary, 1));
+        Assert.Same(first, dictionary[1]);
+        Assert.Same(second, dictionary[2]);
+    }
+
+    [Fact]
+    public void RejectedReentrantClearDoesNotChangeDictionaryEntries()
+    {
+        var dictionary = CreateDictionary();
+        var first = new TestItem(1, "one");
+        var second = new TestItem(2, "two");
+        dictionary.Add(first);
+        Exception? reentrantException = null;
+        dictionary.CollectionChanged += (_, _) =>
+        {
+            reentrantException ??= Record.Exception(dictionary.Clear);
+        };
+        dictionary.CollectionChanged += (_, _) => { };
+
+        dictionary.Add(second);
+
+        Assert.IsType<InvalidOperationException>(reentrantException);
+        Assert.Equal(2, dictionary.Count);
+        Assert.Same(first, GetValueAt(dictionary, 0));
+        Assert.Same(second, GetValueAt(dictionary, 1));
+        Assert.Same(first, dictionary[1]);
+        Assert.Same(second, dictionary[2]);
+    }
+
+    [Fact]
+    public void RejectedReentrantSameKeySetDoesNotChangeDictionaryEntry()
+    {
+        var dictionary = CreateDictionary();
+        var first = new TestItem(1, "one");
+        var second = new TestItem(2, "two");
+        dictionary.Add(first);
+        Exception? reentrantException = null;
+        dictionary.CollectionChanged += (_, _) =>
+        {
+            reentrantException ??= Record.Exception(() => SetValueAt(dictionary, 0, new TestItem(1, "replacement")));
+        };
+        dictionary.CollectionChanged += (_, _) => { };
+
+        dictionary.Add(second);
+
+        Assert.IsType<InvalidOperationException>(reentrantException);
+        Assert.Equal(2, dictionary.Count);
+        Assert.Same(first, GetValueAt(dictionary, 0));
+        Assert.Same(second, GetValueAt(dictionary, 1));
+        Assert.Same(first, dictionary[1]);
+        Assert.Same(second, dictionary[2]);
+    }
+
+    [Fact]
     public void CopyToCopiesDictionaryPairs()
     {
         var dictionary = CreateDictionary();

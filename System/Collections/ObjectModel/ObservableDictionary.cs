@@ -163,6 +163,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     {
         lock (_syncRoot)
         {
+            CheckReentrancy();
             _dictionary.Clear();
             base.ClearItems();
         }
@@ -180,6 +181,7 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
     {
         lock (_syncRoot)
         {
+            CheckReentrancy();
             RemoveDictionaryEntry(Items[index]);
             base.RemoveItem(index);
         }
@@ -212,21 +214,19 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
 
     private void InsertItem(int index, TKey key, TValue item)
     {
-        _dictionary.Add(key, item);
+        CheckReentrancy();
+        if ((uint)index > (uint)Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
 
-        try
-        {
-            base.InsertItem(index, item);
-        }
-        catch
-        {
-            _dictionary.Remove(key);
-            throw;
-        }
+        _dictionary.Add(key, item);
+        base.InsertItem(index, item);
     }
 
     private void SetItem(int index, TKey oldKey, TKey newKey, TValue item)
     {
+        CheckReentrancy();
         if (KeyComparer.Equals(oldKey, newKey))
         {
             _dictionary[oldKey] = item;
@@ -239,20 +239,9 @@ public class ObservableDictionary<TKey, TValue> : BatchObservableCollection<TVal
             throw new ArgumentException("An item with the same key already exists.", nameof(item));
         }
 
-        var oldItem = Items[index];
         _dictionary.Remove(oldKey);
         _dictionary.Add(newKey, item);
-
-        try
-        {
-            base.SetItem(index, item);
-        }
-        catch
-        {
-            _dictionary.Remove(newKey);
-            _dictionary[oldKey] = oldItem;
-            throw;
-        }
+        base.SetItem(index, item);
     }
 
     private int IndexOf(TKey key, TValue value)
