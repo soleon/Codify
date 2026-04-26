@@ -17,7 +17,7 @@ public class ExpandableNotificationObject : NotificationObject
             }
 
             OnExpansionChanged(value);
-            OnExpansionChangedAsync(value);
+            ObserveAsyncHook(OnExpansionChangedAsync(value));
         }
     }
 
@@ -32,7 +32,7 @@ public class ExpandableNotificationObject : NotificationObject
             }
 
             OnSelectionChanged(value);
-            OnSelectionChangedAsync(value);
+            ObserveAsyncHook(OnSelectionChangedAsync(value));
         }
     }
 
@@ -40,6 +40,11 @@ public class ExpandableNotificationObject : NotificationObject
     {
     }
 
+    /// <summary>
+    /// Called after <see cref="IsExpanded"/> changes. The setter starts this hook without awaiting it;
+    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(Exception)"/>.
+    /// </summary>
+    /// <param name="isExpended">The new expanded state.</param>
     protected virtual Task OnExpansionChangedAsync(bool isExpended)
     {
         return Task.CompletedTask;
@@ -49,8 +54,50 @@ public class ExpandableNotificationObject : NotificationObject
     {
     }
 
+    /// <summary>
+    /// Called after <see cref="IsSelected"/> changes. The setter starts this hook without awaiting it;
+    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(Exception)"/>.
+    /// </summary>
+    /// <param name="isSelected">The new selected state.</param>
     protected virtual Task OnSelectionChangedAsync(bool isSelected)
     {
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Called when a task returned by an asynchronous change hook faults.
+    /// </summary>
+    /// <param name="exception">The observed asynchronous hook exception.</param>
+    protected virtual void OnAsyncHookException(Exception exception)
+    {
+    }
+
+    private void ObserveAsyncHook(Task task)
+    {
+        if (task == null || task.IsCompletedSuccessfully)
+        {
+            return;
+        }
+
+        _ = ObserveAsyncHookAsync(task);
+    }
+
+    private async Task ObserveAsyncHookAsync(Task task)
+    {
+        try
+        {
+            await task.ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            try
+            {
+                OnAsyncHookException(exception);
+            }
+            catch
+            {
+                // Keep exception observation from surfacing on the continuation path.
+            }
+        }
     }
 }

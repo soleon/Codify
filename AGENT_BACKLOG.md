@@ -45,7 +45,12 @@ Read AGENTS.md and AGENT_BACKLOG.md. Pick the next unchecked task only, implemen
 
 ### 1. Fix AdaptiveObservableCollection batch notifications
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in commit `72e2916a9a38217cfaf63df92f86c46c2bbcc7ac`.
+- Verification for this task was not re-run in this session; task 3 is the only implementation target for this session.
 
 Primary files:
 
@@ -116,7 +121,18 @@ dotnet build Codify.slnx --no-restore
 
 ### 3. Make ExpandableNotificationObject async hooks explicit
 
-Status: pending
+Status: completed
+
+Completion note:
+
+- Completed in this session on branch `master`.
+- Chosen behavior: explicit fire-and-forget for async hooks, with faulted tasks observed through protected `OnAsyncHookException(Exception)`.
+- Red check: `dotnet test .\Tests\Codify.System.Tests\Codify.System.Tests.csproj` failed before production edits with CS0115 because `OnAsyncHookException(Exception)` did not exist yet.
+- Verification: `dotnet test .\Tests\Codify.System.Tests\Codify.System.Tests.csproj` passed with 23/23 tests; it emitted the existing `Codify.System` package readme warning during package generation.
+- Verification: `dotnet format .\Codify.slnx --verify-no-changes --include .\System\ComponentModel\ExpandableNotificationObject.cs .\Tests\Codify.System.Tests\ComponentModel\ExpandableNotificationObjectTests.cs --verbosity minimal` exited 0.
+- Verification: `dotnet test .\Codify.slnx` passed with 37/37 tests; it emitted the existing `Codify.System` package readme warning during package generation.
+- Verification: `dotnet build .\Codify.slnx --no-restore` succeeded with 0 warnings and 0 errors.
+- Known unrelated gap confirmed: `dotnet format .\Codify.slnx --verify-no-changes --verbosity minimal` still fails on pre-existing whitespace in `System.Windows\Data\BooleanConverter.cs` lines 22-27.
 
 Primary file:
 
