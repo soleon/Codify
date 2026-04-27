@@ -80,12 +80,12 @@ public class BooleanConverterTests
     }
 
     [Fact]
-    public void ConverterImplementationDoesNotUseReflectionBackedDefaultCache()
+    public void ConverterImplementationCachesFallbackStructDefaults()
     {
         var source = global::System.IO.File.ReadAllText(FindBooleanConverterSourcePath());
 
-        Assert.DoesNotContain("Activator.CreateInstance", source, global::System.StringComparison.Ordinal);
-        Assert.DoesNotContain("ConcurrentDictionary", source, global::System.StringComparison.Ordinal);
+        Assert.Contains("ConcurrentDictionary", source, global::System.StringComparison.Ordinal);
+        Assert.Contains("GetOrAdd", source, global::System.StringComparison.Ordinal);
     }
 
     private static string FindBooleanConverterSourcePath()

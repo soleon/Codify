@@ -5,6 +5,9 @@ namespace Codify.System.Windows.Data;
 /// </summary>
 public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
 {
+    private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object>
+        DefaultStructValues = new();
+
     /// <summary>
     /// Converts the supplied value to a Boolean value for a binding target.
     /// </summary>
@@ -92,6 +95,10 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
     {
         var type = value.GetType();
         return type.IsValueType &&
-               Equals(global::System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(type), value);
+               Equals(DefaultStructValues.GetOrAdd(
+                   type,
+                   static defaultType =>
+                       global::System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(defaultType)),
+                   value);
     }
 }
