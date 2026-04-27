@@ -3,7 +3,7 @@ namespace Codify.System.Windows.Data;
 /// <summary>
 /// Converts values to Boolean binding values.
 /// </summary>
-public class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
+public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
 {
     /// <summary>
     /// Converts the supplied value to a Boolean value for a binding target.

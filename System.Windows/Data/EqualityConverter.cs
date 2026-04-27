@@ -3,7 +3,7 @@ namespace Codify.System.Windows.Data;
 /// <summary>
 /// Converts values to Boolean binding values by comparing them with the converter parameter.
 /// </summary>
-public class EqualityConverter : StaticInstance<EqualityConverter>, global::System.Windows.Data.IValueConverter
+public sealed class EqualityConverter : StaticInstance<EqualityConverter>, global::System.Windows.Data.IValueConverter
 {
     /// <summary>
     /// Determines whether the supplied value equals the converter parameter.

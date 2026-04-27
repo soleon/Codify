@@ -3,7 +3,7 @@ namespace Codify.System.Windows.Data;
 /// <summary>
 /// Converts multiple binding values to a single Boolean value.
 /// </summary>
-public class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, global::System.Windows.Data.IMultiValueConverter
+public sealed class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, global::System.Windows.Data.IMultiValueConverter
 {
     private static readonly BooleanConverter BooleanConverter = StaticInstance<BooleanConverter>.Instance;
 
