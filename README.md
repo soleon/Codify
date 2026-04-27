@@ -64,7 +64,6 @@ public sealed class ShellViewModel
 
 ## Notes
 
-- Public APIs are intended to remain compatible across patch releases.
 - `Codify.System.Windows` requires Windows because it targets WPF.
 - The packages intentionally target only the latest LTS .NET line used by this repository. Older target frameworks are not preserved when the package moves to a newer LTS.
 - `Codify.System.Windows` explicitly targets the Windows 10 1809 platform baseline instead of the SDK's implicit Windows 7 fallback.
