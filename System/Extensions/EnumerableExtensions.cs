@@ -11,6 +11,7 @@ public static class EnumerationExtensions
     /// <typeparam name="T">The type of the enumerable item.</typeparam>
     /// <param name="source">The enumerable collection to batch from.</param>
     /// <param name="batchSize">The size of the batch operation.</param>
+    /// <returns>A sequence of batches, each containing up to <paramref name="batchSize" /> consecutive items from <paramref name="source" />.</returns>
     public static global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IEnumerable<T>> Batch<T>(
         this global::System.Collections.Generic.IEnumerable<T> source,
         int batchSize)
