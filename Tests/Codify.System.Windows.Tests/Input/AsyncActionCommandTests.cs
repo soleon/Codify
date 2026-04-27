@@ -191,6 +191,54 @@ public class AsyncActionCommandTests
         Assert.Same(expectedException, exception);
     }
 
+    [Fact]
+    public async Task ExecuteInvokesOnExecuteExceptionWhenDelegateThrows()
+    {
+        var expected = new InvalidOperationException("boom");
+        var observed = new TaskCompletionSource<Exception>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var command = new ObservingAsyncCommand(
+            () => Task.FromException(expected),
+            exception =>
+            {
+                observed.TrySetResult(exception);
+                return true;
+            });
+
+        command.Execute(null);
+
+        var captured = await observed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Same(expected, captured);
+    }
+
+    [Fact]
+    public async Task ExecuteRethrowsWhenOnExecuteExceptionReturnsFalse()
+    {
+        var expected = new InvalidOperationException("boom");
+        var command = new ObservingAsyncCommand(
+            () => Task.FromException(expected),
+            _ => false);
+
+        var rethrown = await CaptureAsyncVoidExceptionAsync(() => command.Execute(null));
+
+        Assert.Same(expected, rethrown);
+    }
+
+    private sealed class ObservingAsyncCommand : AsyncCommand
+    {
+        private readonly Func<Exception, bool> _onException;
+
+        public ObservingAsyncCommand(Func<Task> execute, Func<Exception, bool> onException)
+        {
+            ExecuteFunc = _ => execute();
+            _onException = onException;
+        }
+
+        protected override bool OnExecuteException(Exception exception)
+        {
+            return _onException(exception);
+        }
+    }
+
     private static Exception CaptureAsyncVoidException(Action execute)
     {
         return CaptureAsyncVoidExceptionAsync(execute).GetAwaiter().GetResult();
