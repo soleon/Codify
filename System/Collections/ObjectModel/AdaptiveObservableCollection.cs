@@ -1,7 +1,7 @@
 namespace Codify.System.Collections.ObjectModel;
 
 /// <summary>
-///     An observable collection that synchronises to a source collection of a different item type.
+/// An observable collection that synchronises to a source collection of a different item type.
 /// </summary>
 /// <typeparam name="TSource"> The type of the items in the source collection.</typeparam>
 /// <typeparam name="TTarget"> The type of the items in this collection.</typeparam>
@@ -10,23 +10,23 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
     global::System.IDisposable
 {
     /// <summary>
-    ///     A reference to the function used to wrap source items.
+    /// A reference to the function used to wrap source items.
     /// </summary>
     private readonly global::System.Func<TSource, TTarget> _converter;
 
     /// <summary>
-    ///     An internal list that keep track of the exact source items that maps 1 to 1 to target items in this collection.
+    /// An internal list that keep track of the exact source items that maps 1 to 1 to target items in this collection.
     /// </summary>
     private readonly global::System.Collections.ObjectModel.ObservableCollection<TSource> _sourceCollection;
 
     /// <summary>
-    ///     Creates a new instance of <see cref="AdaptiveObservableCollection{TSource,TTarget}" />.
+    /// Creates a new instance of <see cref="AdaptiveObservableCollection{TSource,TTarget}" />.
     /// </summary>
     /// <param name="sourceCollection">
-    ///     The source collection to adapt to.
+    /// The source collection to adapt to.
     /// </param>
     /// <param name="converter">
-    ///     The function used to convert <typeparamref name="TSource" /> items to <typeparamref name="TTarget" /> items.
+    /// The function used to convert <typeparamref name="TSource" /> items to <typeparamref name="TTarget" /> items.
     /// </param>
     public AdaptiveObservableCollection(
         global::System.Collections.ObjectModel.ObservableCollection<TSource> sourceCollection,
@@ -43,7 +43,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
     }
 
     /// <summary>
-    ///     Clears existing items and stops synchronising with the source collection.
+    /// Clears existing items and stops synchronising with the source collection.
     /// </summary>
     public void Dispose()
     {
