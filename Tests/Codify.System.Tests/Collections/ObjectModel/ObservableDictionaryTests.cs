@@ -405,6 +405,41 @@ public class ObservableDictionaryTests
         Assert.False(((ICollection<KeyValuePair<int, TestItem>>)dictionary).IsReadOnly);
     }
 
+    [Fact]
+    public void KeysSnapshotIsStableAgainstSubsequentMutation()
+    {
+        var dictionary = CreateDictionary();
+        for (var i = 1; i <= 4; i++)
+        {
+            dictionary.Add(i, new TestItem(i, $"item-{i}"));
+        }
+
+        var keys = dictionary.Keys;
+        dictionary.Add(5, new TestItem(5, "item-5"));
+        dictionary.Remove(1);
+
+        Assert.Equal(4, keys.Count);
+        Assert.Contains(1, keys);
+        Assert.DoesNotContain(5, keys);
+    }
+
+    [Fact]
+    public void ValuesSnapshotIsStableAgainstSubsequentMutation()
+    {
+        var dictionary = CreateDictionary();
+        var first = new TestItem(1, "one");
+        var second = new TestItem(2, "two");
+        dictionary.Add(1, first);
+        dictionary.Add(2, second);
+
+        var values = dictionary.Values;
+        dictionary.Remove(1);
+
+        Assert.Equal(2, values.Count);
+        Assert.Contains(first, values);
+        Assert.Contains(second, values);
+    }
+
     private static ObservableDictionary<int, TItem> CreateDictionary<TItem>()
         where TItem : IKeyedItem
     {

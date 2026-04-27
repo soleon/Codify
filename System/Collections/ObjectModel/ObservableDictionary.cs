@@ -199,7 +199,7 @@ public class ObservableDictionary<TKey, TValue> :
     }
 
     /// <summary>
-    /// Gets a collection containing the dictionary keys.
+    /// Gets a snapshot of the dictionary keys taken under the synchronisation lock.
     /// </summary>
     public global::System.Collections.Generic.ICollection<TKey> Keys
     {
@@ -207,13 +207,13 @@ public class ObservableDictionary<TKey, TValue> :
         {
             lock (_syncRoot)
             {
-                return _dictionary.Keys;
+                return [.. _dictionary.Keys];
             }
         }
     }
 
     /// <summary>
-    /// Gets a collection containing the dictionary values.
+    /// Gets a snapshot of the dictionary values taken under the synchronisation lock.
     /// </summary>
     public global::System.Collections.Generic.ICollection<TValue> Values
     {
@@ -221,7 +221,7 @@ public class ObservableDictionary<TKey, TValue> :
         {
             lock (_syncRoot)
             {
-                return _dictionary.Values;
+                return [.. _dictionary.Values];
             }
         }
     }
