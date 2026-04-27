@@ -15,7 +15,7 @@
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>10.0-recommended</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <Authors>Long Zhou</Authors>
+        <Authors>Leon Zhou</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/soleon/Codify</PackageProjectUrl>
         <RepositoryUrl>https://github.com/soleon/Codify</RepositoryUrl>
