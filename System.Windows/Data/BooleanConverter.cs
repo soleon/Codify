@@ -8,22 +8,30 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
     private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object>
         DefaultStructValues = new();
 
+    /// <inheritdoc />
+    public object Convert(
+        object? value,
+        global::System.Type targetType,
+        object? parameter,
+        global::System.Globalization.CultureInfo culture)
+    {
+        return Convert(value, parameter);
+    }
+
     /// <summary>
-    /// Converts the supplied value to a Boolean value for a binding target.
+    /// Converts the supplied value to a Boolean value without binding context.
     /// </summary>
     /// <param name="value">The value produced by the binding source.</param>
-    /// <param name="targetType">The binding target type.</param>
     /// <param name="parameter">Use the string value <c>invert</c> to invert the conversion result.</param>
-    /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
     /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
     /// otherwise, the converted Boolean value.
     /// </returns>
-    public object Convert(
-        object? value,
-        global::System.Type? targetType = null,
-        object? parameter = null,
-        global::System.Globalization.CultureInfo? culture = null)
+    [global::System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification = "Kept as instance so callers reach it through the StaticInstance singleton, mirroring the IValueConverter implementation.")]
+    public object Convert(object? value, object? parameter = null)
     {
         if (value == global::System.Windows.DependencyProperty.UnsetValue ||
             value == global::System.Windows.Data.Binding.DoNothing)

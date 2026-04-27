@@ -27,7 +27,7 @@ public sealed class MultiBooleanConverter : StaticInstance<MultiBooleanConverter
     {
         foreach (var value in values)
         {
-            var result = BooleanConverter.Convert(value);
+            var result = BooleanConverter.Convert(value, parameter: null);
             if (result == global::System.Windows.DependencyProperty.UnsetValue ||
                 result == global::System.Windows.Data.Binding.DoNothing)
             {

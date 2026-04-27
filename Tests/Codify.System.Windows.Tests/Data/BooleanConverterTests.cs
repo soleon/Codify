@@ -80,6 +80,14 @@ public class BooleanConverterTests
     }
 
     [Fact]
+    public void ConvertWithoutContextDelegatesToInterfaceImplementation()
+    {
+        Assert.Equal(true, BooleanConverter.Instance.Convert(true));
+        Assert.Equal(false, BooleanConverter.Instance.Convert(false));
+        Assert.Equal(true, BooleanConverter.Instance.Convert(false, parameter: "invert"));
+    }
+
+    [Fact]
     public void ConverterImplementationCachesFallbackStructDefaults()
     {
         var source = global::System.IO.File.ReadAllText(FindBooleanConverterSourcePath());
