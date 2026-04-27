@@ -78,9 +78,9 @@ public class ObservableDictionary<TKey, TValue> :
     }
 
     /// <summary>
-    /// Gets a value indicating whether the dictionary is read-only.
+    /// Gets a value indicating whether the dictionary is read-only. Always returns <see langword="false" />.
     /// </summary>
-    public bool IsReadOnly { get; }
+    public bool IsReadOnly => false;
 
     /// <summary>
     /// Adds a value with the specified key.

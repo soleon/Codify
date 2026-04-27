@@ -396,6 +396,15 @@ public class ObservableDictionaryTests
         Assert.Throws<ArgumentNullException>(() => new ObservableDictionary<int, TestItem>(null!));
     }
 
+    [Fact]
+    public void IsReadOnlyAlwaysReturnsFalse()
+    {
+        var dictionary = CreateDictionary();
+
+        Assert.False(dictionary.IsReadOnly);
+        Assert.False(((ICollection<KeyValuePair<int, TestItem>>)dictionary).IsReadOnly);
+    }
+
     private static ObservableDictionary<int, TItem> CreateDictionary<TItem>()
         where TItem : IKeyedItem
     {
