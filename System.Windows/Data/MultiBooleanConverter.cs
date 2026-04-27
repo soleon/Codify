@@ -5,42 +5,49 @@ namespace Codify.System.Windows.Data;
 /// </summary>
 public sealed class MultiBooleanConverter : StaticInstance<MultiBooleanConverter>, global::System.Windows.Data.IMultiValueConverter
 {
-    private static readonly BooleanConverter BooleanConverter = StaticInstance<BooleanConverter>.Instance;
+    private static readonly BooleanConverter Default = StaticInstance<BooleanConverter>.Instance;
 
     /// <summary>
     /// Converts all supplied values and returns <see langword="true" /> only when every value converts to true.
     /// </summary>
-    /// <param name="values">The values produced by the binding sources.</param>
+    /// <param name="values">
+    /// The values produced by the binding sources. Individual entries may be <see langword="null" />,
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" />, or
+    /// <see cref="global::System.Windows.Data.Binding.DoNothing" />.
+    /// </param>
     /// <param name="targetType">The binding target type.</param>
     /// <param name="parameter">The value to return when any value converts to false.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
     /// <see langword="true" /> when all values convert to true; <paramref name="parameter" /> or
     /// <see langword="false" /> when any value converts to false; otherwise,
-    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when any value is unset.
+    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when any value is unset, or
+    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> when any value is do-nothing.
     /// </returns>
     public object Convert(
-        object[] values,
+        object?[] values,
         global::System.Type targetType,
         object? parameter,
         global::System.Globalization.CultureInfo culture)
     {
+        global::System.ArgumentNullException.ThrowIfNull(values);
+
         foreach (var value in values)
         {
-            var result = BooleanConverter.Convert(value, parameter: null);
+            var result = Default.Convert(value, parameter: null);
             if (result == global::System.Windows.DependencyProperty.UnsetValue ||
                 result == global::System.Windows.Data.Binding.DoNothing)
             {
                 return result;
             }
 
-            if (!Equals(result, true))
+            if (result is not true)
             {
-                return parameter ?? false;
+                return parameter ?? BooleanConverter.BoxedFalse;
             }
         }
 
-        return true;
+        return BooleanConverter.BoxedTrue;
     }
 
     /// <summary>
@@ -51,7 +58,7 @@ public sealed class MultiBooleanConverter : StaticInstance<MultiBooleanConverter
     /// <param name="parameter">An optional converter parameter.</param>
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns><see langword="null" /> because reverse conversion is not supported.</returns>
-    public object[]? ConvertBack(
+    public object?[]? ConvertBack(
         object? value,
         global::System.Type[] targetTypes,
         object? parameter,

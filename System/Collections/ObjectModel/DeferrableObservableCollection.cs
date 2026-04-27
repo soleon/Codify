@@ -6,11 +6,14 @@ namespace Codify.System.Collections.ObjectModel;
 /// <typeparam name="T">The type of items in the collection.</typeparam>
 public class DeferrableObservableCollection<T> : global::System.Collections.ObjectModel.ObservableCollection<T>
 {
+    private static readonly global::System.ComponentModel.PropertyChangedEventArgs CountPropertyChangedEventArgs = new(nameof(Count));
+
+    private static readonly global::System.ComponentModel.PropertyChangedEventArgs IndexerPropertyChangedEventArgs = new("Item[]");
+
+    private static readonly global::System.Collections.Specialized.NotifyCollectionChangedEventArgs ResetCollectionChangedEventArgs =
+        new(global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset);
+
     private readonly global::System.Threading.Lock _collectionUpdateLock = new();
-
-    private readonly global::System.ComponentModel.PropertyChangedEventArgs _countPropertyChangedEventArgs = new(nameof(Count));
-
-    private readonly global::System.ComponentModel.PropertyChangedEventArgs _indexerPropertyChangedEventArgs = new("Item[]");
 
     private bool _hasPendingChanges;
 
@@ -71,11 +74,9 @@ public class DeferrableObservableCollection<T> : global::System.Collections.Obje
 
         if (!shouldNotify) return;
 
-        OnPropertyChanged(_countPropertyChangedEventArgs);
-        OnPropertyChanged(_indexerPropertyChangedEventArgs);
-        NotifyCollectionChanged(
-            new global::System.Collections.Specialized.NotifyCollectionChangedEventArgs(
-                global::System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        OnPropertyChanged(CountPropertyChangedEventArgs);
+        OnPropertyChanged(IndexerPropertyChangedEventArgs);
+        NotifyCollectionChanged(ResetCollectionChangedEventArgs);
     }
 
     /// <summary>

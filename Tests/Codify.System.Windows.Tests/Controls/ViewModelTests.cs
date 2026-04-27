@@ -78,6 +78,22 @@ public class ViewModelTests
         });
     }
 
+    [Fact]
+    public void SettingSameViewDoesNotReassignDataContext()
+    {
+        RunOnStaThread(() =>
+        {
+            var viewModel = new TrackingViewModel();
+            var view = viewModel.View;
+            var foreignDataContext = new object();
+            view.DataContext = foreignDataContext;
+
+            viewModel.View = view;
+
+            Assert.Same(foreignDataContext, view.DataContext);
+        });
+    }
+
     private static void RunOnStaThread(Action action)
     {
         Exception? exception = null;

@@ -5,6 +5,10 @@ namespace Codify.System.Windows.Data;
 /// </summary>
 public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
 {
+    internal static readonly object BoxedTrue = true;
+
+    internal static readonly object BoxedFalse = false;
+
     private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object>
         DefaultStructValues = new();
 
@@ -25,7 +29,8 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
     /// <param name="parameter">Use the string value <c>invert</c> to invert the conversion result.</param>
     /// <returns>
     /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
-    /// otherwise, the converted Boolean value.
+    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> when <paramref name="value" /> is do-nothing;
+    /// otherwise, a shared cached <see cref="bool" /> instance to avoid per-binding allocations.
     /// </returns>
     [global::System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Performance",
@@ -41,15 +46,17 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
 
         var isInvert = parameter is string stringValue &&
                        stringValue.Equals("invert", global::System.StringComparison.OrdinalIgnoreCase);
-        switch (value)
+        return value switch
         {
-            case bool boolValue:
-                return isInvert ? !boolValue : boolValue;
-            case null:
-                return isInvert;
-            default:
-                return IsDefaultValue(value) ? isInvert : !isInvert;
-        }
+            bool boolValue => Box(boolValue ^ isInvert),
+            null => Box(isInvert),
+            _ => Box(IsDefaultValue(value) ? isInvert : !isInvert)
+        };
+    }
+
+    internal static object Box(bool value)
+    {
+        return value ? BoxedTrue : BoxedFalse;
     }
 
     /// <summary>

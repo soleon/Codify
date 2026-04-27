@@ -90,4 +90,42 @@ public class MultiBooleanConverterTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public void ConvertThrowsForNullValuesArray()
+    {
+        Assert.Throws<ArgumentNullException>(() => MultiBooleanConverter.Instance.Convert(
+            null!,
+            null!,
+            null!,
+            CultureInfo.InvariantCulture));
+    }
+
+    [Fact]
+    public void ConvertReturnsCachedBoxedBooleansToReducePerBindingAllocations()
+    {
+        var firstTrue = MultiBooleanConverter.Instance.Convert(
+            [true, 1, "text"], null!, null!, CultureInfo.InvariantCulture);
+        var secondTrue = MultiBooleanConverter.Instance.Convert(
+            [true], null!, null!, CultureInfo.InvariantCulture);
+        var firstFalse = MultiBooleanConverter.Instance.Convert(
+            [true, 0], null!, null!, CultureInfo.InvariantCulture);
+        var secondFalse = MultiBooleanConverter.Instance.Convert(
+            [false], null!, null!, CultureInfo.InvariantCulture);
+
+        Assert.Same(firstTrue, secondTrue);
+        Assert.Same(firstFalse, secondFalse);
+    }
+
+    [Fact]
+    public void ConvertHandlesNullElementsAsFalseValuedBindings()
+    {
+        var result = MultiBooleanConverter.Instance.Convert(
+            [true, null],
+            null!,
+            "fallback",
+            CultureInfo.InvariantCulture);
+
+        Assert.Equal("fallback", result);
+    }
 }

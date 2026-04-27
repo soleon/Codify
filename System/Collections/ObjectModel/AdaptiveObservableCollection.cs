@@ -19,6 +19,8 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
     /// </summary>
     private readonly global::System.Collections.ObjectModel.ObservableCollection<TSource> _sourceCollection;
 
+    private bool _isDisposed;
+
     /// <summary>
     /// Creates a new instance of <see cref="AdaptiveObservableCollection{TSource,TTarget}" />.
     /// </summary>
@@ -45,11 +47,38 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
     /// <summary>
     /// Clears existing items and stops synchronising with the source collection.
     /// </summary>
+    /// <remarks>
+    /// Subsequent calls are a no-op. Derived types should override <see cref="Dispose(bool)" /> to release
+    /// additional resources rather than overriding this method.
+    /// </remarks>
     public void Dispose()
     {
+        Dispose(disposing: true);
+        global::System.GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Releases resources held by this collection.
+    /// </summary>
+    /// <param name="disposing">
+    /// <see langword="true" /> when invoked from <see cref="Dispose()" />; <see langword="false" /> when invoked from a finalizer.
+    /// </param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _isDisposed = true;
+
+        if (!disposing)
+        {
+            return;
+        }
+
         _sourceCollection.CollectionChanged -= OnSourceCollectionChanged;
         ClearItems();
-        global::System.GC.SuppressFinalize(this);
     }
 
     private void OnSourceCollectionChanged(
@@ -95,6 +124,17 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
         }
 
         var insertIndex = startIndex;
+        if (newItems is global::System.Collections.Generic.IList<TSource> typedItems)
+        {
+            for (var i = 0; i < typedItems.Count; i++)
+            {
+                InsertItem(insertIndex >= Count ? Count : insertIndex, _converter(typedItems[i]));
+                insertIndex++;
+            }
+
+            return;
+        }
+
         foreach (TSource item in newItems)
         {
             InsertItem(insertIndex >= Count ? Count : insertIndex, _converter(item));
@@ -110,7 +150,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
             return;
         }
 
-        foreach (var _ in oldItems)
+        for (var i = 0; i < oldItems.Count; i++)
         {
             RemoveItem(startIndex);
         }
@@ -129,6 +169,16 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
 
         if (oldItems.Count == newItems.Count)
         {
+            if (newItems is global::System.Collections.Generic.IList<TSource> typedItems)
+            {
+                for (var i = 0; i < typedItems.Count; i++)
+                {
+                    SetItem(startIndex + i, _converter(typedItems[i]));
+                }
+
+                return;
+            }
+
             var replaceIndex = startIndex;
             foreach (TSource item in newItems)
             {
@@ -139,7 +189,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
             return;
         }
 
-        foreach (var _ in oldItems)
+        for (var i = 0; i < oldItems.Count; i++)
         {
             RemoveItem(startIndex);
         }
@@ -161,7 +211,7 @@ public class AdaptiveObservableCollection<TSource, TTarget> :
             return;
         }
 
-        foreach (var _ in movedItems)
+        for (var i = 0; i < movedItems.Count; i++)
         {
             RemoveItem(oldIndex);
         }

@@ -129,6 +129,8 @@ public class ObservableDictionary<TKey, TValue> :
             var index = IndexOf(key, item);
             if (index < 0)
             {
+                global::System.Diagnostics.Debug.Fail(
+                    "ObservableDictionary lost the base list entry for a stored key. The dictionary entry is being removed to recover.");
                 _dictionary.Remove(key);
                 return true;
             }
@@ -188,6 +190,8 @@ public class ObservableDictionary<TKey, TValue> :
                 var index = IndexOf(key, item);
                 if (index < 0)
                 {
+                    global::System.Diagnostics.Debug.Fail(
+                        "ObservableDictionary lost the base list entry for a stored key. The dictionary entry is being rebuilt at the end of the list to recover.");
                     _dictionary.Remove(key);
                     InsertItem(Count, itemKey, value);
                     return;
@@ -201,6 +205,10 @@ public class ObservableDictionary<TKey, TValue> :
     /// <summary>
     /// Gets a snapshot of the dictionary keys taken under the synchronisation lock.
     /// </summary>
+    /// <remarks>
+    /// Each access allocates a new list copy of the current keys so that callers can iterate safely while the
+    /// underlying collection mutates. Avoid calling this property on hot paths.
+    /// </remarks>
     public global::System.Collections.Generic.ICollection<TKey> Keys
     {
         get
@@ -215,6 +223,10 @@ public class ObservableDictionary<TKey, TValue> :
     /// <summary>
     /// Gets a snapshot of the dictionary values taken under the synchronisation lock.
     /// </summary>
+    /// <remarks>
+    /// Each access allocates a new list copy of the current values so that callers can iterate safely while
+    /// the underlying collection mutates. Avoid calling this property on hot paths.
+    /// </remarks>
     public global::System.Collections.Generic.ICollection<TValue> Values
     {
         get

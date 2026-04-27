@@ -88,6 +88,22 @@ public class BooleanConverterTests
     }
 
     [Fact]
+    public void ConvertReturnsCachedBoxedBooleansToReducePerBindingAllocations()
+    {
+        var firstTrue = BooleanConverter.Instance.Convert(true, null!, null!, CultureInfo.InvariantCulture);
+        var secondTrue = BooleanConverter.Instance.Convert(7, null!, null!, CultureInfo.InvariantCulture);
+        var firstFalse = BooleanConverter.Instance.Convert(false, null!, null!, CultureInfo.InvariantCulture);
+        var secondFalse = BooleanConverter.Instance.Convert(0, null!, null!, CultureInfo.InvariantCulture);
+        var invertedTrue = BooleanConverter.Instance.Convert(false, null!, "invert", CultureInfo.InvariantCulture);
+        var invertedFalse = BooleanConverter.Instance.Convert(true, null!, "invert", CultureInfo.InvariantCulture);
+
+        Assert.Same(firstTrue, secondTrue);
+        Assert.Same(firstFalse, secondFalse);
+        Assert.Same(firstTrue, invertedTrue);
+        Assert.Same(firstFalse, invertedFalse);
+    }
+
+    [Fact]
     public void ConverterImplementationCachesFallbackStructDefaults()
     {
         var source = global::System.IO.File.ReadAllText(FindBooleanConverterSourcePath());

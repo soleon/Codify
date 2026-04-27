@@ -13,17 +13,22 @@ public class ViewModel<T> : NotificationObject where T : global::System.Windows.
     /// <summary>
     /// Gets or sets the view associated with this view model.
     /// </summary>
+    /// <remarks>
+    /// The getter materializes a new view via <see cref="CreateNewView" /> the first time it is read after
+    /// the view has been cleared, including after the setter is assigned <see langword="null" />.
+    /// The setter is idempotent: assigning the current view does not raise
+    /// <see cref="global::System.ComponentModel.INotifyPropertyChanged.PropertyChanged" />, does not detach
+    /// or reattach lifecycle handlers, and does not reapply this view model as the view's data context.
+    /// Assigning a different non-<see langword="null" /> view sets the new view's
+    /// <see cref="global::System.Windows.FrameworkElement.DataContext" /> to this view model and then
+    /// invokes <see cref="OnViewChanged" />.
+    /// </remarks>
     [global::System.Diagnostics.CodeAnalysis.AllowNull]
     public virtual T View
     {
         get { return _view ??= CreateNewView(); }
         set
         {
-            if (value is not null)
-            {
-                value.DataContext = this;
-            }
-
             var old = _view;
             if (!SetValue(ref _view, value)) return;
 
@@ -35,6 +40,7 @@ public class ViewModel<T> : NotificationObject where T : global::System.Windows.
 
             if (value != null)
             {
+                value.DataContext = this;
                 value.Loaded += OnLoaded;
                 value.Unloaded += OnUnloaded;
             }

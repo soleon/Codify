@@ -41,7 +41,7 @@ Codify is a generic WPF and .NET library. These instructions apply to all AI age
 - Keep public APIs stable, documented where useful, and suitable for reuse by external consumers.
 - All public-facing types and members must have full XML documentation coverage.
 - Avoid global state and hidden side effects unless they are required by platform constraints.
-- Because the core library namespace is `Codify.System`, fully qualify BCL `System.*` types as `global::System.*` when referenced from inside that namespace and the compiler could otherwise resolve them under `Codify.System`.
+- Because the product library namespaces sit under `Codify.System`, the `System` and `System.Windows` projects must fully qualify BCL `System.*` types as `global::System.*` regardless of whether a name collision currently exists. This is enforced as a static guard test and is intentional defense-in-depth so that introducing a future `Codify.System.*` type cannot silently hijack a BCL reference. Test projects under `Codify.System.Tests` and `Codify.System.Windows.Tests` only need the same qualification when the compiler would otherwise resolve the reference under `Codify.System`.
 
 ## Testing Policy
 

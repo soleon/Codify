@@ -6,21 +6,6 @@ namespace Codify.System.Extensions;
 public static class EnumerationExtensions
 {
     /// <summary>
-    /// Uses the input collection to return a collection of batches based on the specified size.
-    /// </summary>
-    /// <typeparam name="T">The type of the enumerable item.</typeparam>
-    /// <param name="source">The enumerable collection to batch from.</param>
-    /// <param name="batchSize">The size of the batch operation.</param>
-    /// <returns>A sequence of batches, each containing up to <paramref name="batchSize" /> consecutive items from <paramref name="source" />.</returns>
-    [global::System.Obsolete("Use System.Linq.Enumerable.Chunk instead. Batch will be removed in a future major version.", error: false)]
-    public static global::System.Collections.Generic.IEnumerable<global::System.Collections.Generic.IEnumerable<T>> Batch<T>(
-        this global::System.Collections.Generic.IEnumerable<T> source,
-        int batchSize)
-    {
-        return global::System.Linq.Enumerable.Chunk(source, batchSize);
-    }
-
-    /// <summary>
     /// Inserts an item in a list according to the specified compare function.
     /// </summary>
     /// <typeparam name="T">The type of the items in the list.</typeparam>

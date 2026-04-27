@@ -72,4 +72,20 @@ public class VisibilityConverterTests
 
         Assert.Same(Binding.DoNothing, result);
     }
+
+    [Fact]
+    public void ConvertReturnsCachedVisibilityValuesToReducePerBindingAllocations()
+    {
+        var firstVisible = VisibilityConverter.Instance.Convert(
+            true, typeof(Visibility), null!, CultureInfo.InvariantCulture);
+        var secondVisible = VisibilityConverter.Instance.Convert(
+            "non-empty", typeof(Visibility), null!, CultureInfo.InvariantCulture);
+        var firstCollapsed = VisibilityConverter.Instance.Convert(
+            false, typeof(Visibility), null!, CultureInfo.InvariantCulture);
+        var secondCollapsed = VisibilityConverter.Instance.Convert(
+            null, typeof(Visibility), null!, CultureInfo.InvariantCulture);
+
+        Assert.Same(firstVisible, secondVisible);
+        Assert.Same(firstCollapsed, secondCollapsed);
+    }
 }

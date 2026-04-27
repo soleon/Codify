@@ -8,6 +8,11 @@ public abstract class SyncCommand : Command
     /// <summary>
     /// Stores the delegate invoked by <see cref="Command.Execute(object?)" />.
     /// </summary>
+    /// <remarks>
+    /// This field is intended to be assigned once during construction of the derived command and treated as
+    /// effectively read-only afterwards. Mutating the field after the command has been bound is not safe for
+    /// concurrent calls to <see cref="Execute(object?)" /> and is not protected by any synchronisation.
+    /// </remarks>
     [global::System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Design",
         "CA1051:Do not declare visible instance fields",

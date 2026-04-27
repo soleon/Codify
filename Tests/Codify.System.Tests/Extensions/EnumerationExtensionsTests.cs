@@ -4,43 +4,6 @@ namespace Codify.System.Tests.Extensions;
 
 public class EnumerationExtensionsTests
 {
-#pragma warning disable CS0618 // Batch is intentionally obsolete; preserve regression coverage.
-
-    [Fact]
-    public void BatchSplitsSourceIntoFullAndPartialBatchesInOrder()
-    {
-        var batches = Enumerable.Range(1, 5)
-            .Batch(2)
-            .Select(batch => batch.ToArray())
-            .ToArray();
-
-        Assert.Collection(
-            batches,
-            batch => Assert.Equal([1, 2], batch),
-            batch => Assert.Equal([3, 4], batch),
-            batch => Assert.Equal([5], batch));
-    }
-
-    [Fact]
-    public void BatchReturnsNoBatchesForEmptySource()
-    {
-        var batches = Array.Empty<int>().Batch(3);
-
-        Assert.Empty(batches);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void BatchRejectsNonPositiveBatchSize(int batchSize)
-    {
-        var source = Enumerable.Range(1, 3);
-
-        Assert.Throws<ArgumentOutOfRangeException>(() => source.Batch(batchSize).ToArray());
-    }
-
-#pragma warning restore CS0618
-
     [Theory]
     [InlineData(0, 0)]
     [InlineData(2, 1)]

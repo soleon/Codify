@@ -108,6 +108,66 @@ public class AdaptiveObservableCollectionTests
         Assert.Empty(collection);
     }
 
+    [Fact]
+    public void DisposeIsIdempotent()
+    {
+        var source = new RangeObservableCollection<int> { 1, 2 };
+        var collection = CreateCollection(source);
+
+        collection.Dispose();
+        collection.Dispose();
+
+        Assert.Empty(collection);
+    }
+
+    [Fact]
+    public void NegativeAddStartingIndexReloadsFromSource()
+    {
+        var source = new IndexedNotifyingObservableCollection<int> { 1, 2 };
+        var collection = CreateCollection(source);
+
+        source.RaiseChange(new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Add,
+            changedItems: new List<int> { 99 },
+            startingIndex: -1));
+
+        Assert.Equal(["1", "2"], collection);
+    }
+
+    [Fact]
+    public void NegativeRemoveStartingIndexReloadsFromSource()
+    {
+        var source = new IndexedNotifyingObservableCollection<int> { 1, 2 };
+        var collection = CreateCollection(source);
+
+        source.RaiseChange(new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Remove,
+            changedItems: new List<int> { 1 },
+            startingIndex: -1));
+
+        Assert.Equal(["1", "2"], collection);
+    }
+
+    [Fact]
+    public void NegativeReplaceStartingIndexReloadsFromSource()
+    {
+        var source = new IndexedNotifyingObservableCollection<int> { 1, 2 };
+        var collection = CreateCollection(source);
+
+        source.RaiseChange(new NotifyCollectionChangedEventArgs(
+            NotifyCollectionChangedAction.Replace,
+            newItems: new List<int> { 99 },
+            oldItems: new List<int> { 1 },
+            startingIndex: -1));
+
+        Assert.Equal(["1", "2"], collection);
+    }
+
+    // The Move negative-index branch in MoveItems is defensive against custom
+    // NotifyCollectionChangedEventArgs sources that bypass standard constructor validation.
+    // The public Move constructors all reject negative indices, so it is not reachable through
+    // any public BCL API and is intentionally not exercised by tests.
+
     private static AdaptiveObservableCollection<int, string> CreateCollection(ObservableCollection<int> source)
     {
         return new AdaptiveObservableCollection<int, string>(source, Convert);
@@ -116,6 +176,14 @@ public class AdaptiveObservableCollectionTests
     private static string Convert(int value)
     {
         return value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private sealed class IndexedNotifyingObservableCollection<T> : ObservableCollection<T>
+    {
+        public void RaiseChange(NotifyCollectionChangedEventArgs args)
+        {
+            OnCollectionChanged(args);
+        }
     }
 
     private sealed class RangeObservableCollection<T> : ObservableCollection<T>

@@ -5,6 +5,10 @@ namespace Codify.System.Windows.Data;
 /// </summary>
 public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, global::System.Windows.Data.IValueConverter
 {
+    private static readonly object BoxedVisible = global::System.Windows.Visibility.Visible;
+
+    private static readonly object BoxedCollapsed = global::System.Windows.Visibility.Collapsed;
+
     /// <summary>
     /// Converts the supplied value to <see cref="global::System.Windows.Visibility.Visible" /> or
     /// <see cref="global::System.Windows.Visibility.Collapsed" />.
@@ -15,8 +19,8 @@ public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, g
     /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
     /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
-    /// otherwise, <see cref="global::System.Windows.Visibility.Visible" /> or
-    /// <see cref="global::System.Windows.Visibility.Collapsed" />.
+    /// otherwise, a shared cached <see cref="global::System.Windows.Visibility" /> instance to avoid
+    /// per-binding allocations.
     /// </returns>
     public object Convert(
         object? value,
@@ -28,9 +32,7 @@ public sealed class VisibilityConverter : StaticInstance<VisibilityConverter>, g
         return result == global::System.Windows.DependencyProperty.UnsetValue ||
                result == global::System.Windows.Data.Binding.DoNothing
             ? result
-            : result is true
-                ? global::System.Windows.Visibility.Visible
-                : global::System.Windows.Visibility.Collapsed;
+            : result is true ? BoxedVisible : BoxedCollapsed;
     }
 
     /// <summary>
