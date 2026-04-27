@@ -43,6 +43,29 @@ public class NotificationObject : global::System.ComponentModel.INotifyPropertyC
     }
 
     /// <summary>
+    /// Sets a backing field and raises change notifications for the primary and any dependent property names.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="source">The backing field to update.</param>
+    /// <param name="value">The new value.</param>
+    /// <param name="propertyName">The name of the primary property that changed.</param>
+    /// <param name="propertyNames">Additional dependent property names to notify.</param>
+    /// <returns><see langword="true" /> if the value changed; otherwise, <see langword="false" />.</returns>
+    [global::System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+    protected bool SetValue<T>(
+        ref T source,
+        T value,
+        string propertyName,
+        global::System.ReadOnlySpan<string> propertyNames)
+    {
+        if (!SetValue(ref source, value, propertyName)) return false;
+
+        foreach (var name in propertyNames) OnPropertyChanged(name);
+
+        return true;
+    }
+
+    /// <summary>
     /// Sets a backing field and raises a property change notification when the value changes.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>

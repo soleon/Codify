@@ -126,6 +126,31 @@ public class NotificationObjectTests
     }
 
     [Fact]
+    public void SetValueWithSpanOverloadRaisesPrimaryAndDependentPropertyChanges()
+    {
+        var target = new TestNotificationObject();
+        var propertyNames = TrackPropertyChanges(target);
+
+        var changed = target.SetPrimaryWithSpan("updated", ["Dependent1", "Dependent2"]);
+
+        Assert.True(changed);
+        Assert.Equal(["Primary", "Dependent1", "Dependent2"], propertyNames);
+    }
+
+    [Fact]
+    public void SetValueWithSpanOverloadReturnsFalseWhenValueUnchanged()
+    {
+        var target = new TestNotificationObject();
+        target.SetPrimaryWithSpan("seed", []);
+        var propertyNames = TrackPropertyChanges(target);
+
+        var changed = target.SetPrimaryWithSpan("seed", ["Dependent1"]);
+
+        Assert.False(changed);
+        Assert.Empty(propertyNames);
+    }
+
+    [Fact]
     public void DynamicPropertyNamesDoNotGrowSharedEventArgsCacheWithoutBound()
     {
         ClearCachedPropertyChangedEventArgs();
@@ -323,6 +348,11 @@ public class NotificationObjectTests
         public bool SetPrimaryWithNullDependents(string value)
         {
             return SetValue(ref _primary, value, nameof(Primary), null!);
+        }
+
+        public bool SetPrimaryWithSpan(string value, ReadOnlySpan<string> dependents)
+        {
+            return SetValue(ref _primary, value, nameof(Primary), dependents);
         }
 
         public void RaisePropertyChanged(string propertyName)
