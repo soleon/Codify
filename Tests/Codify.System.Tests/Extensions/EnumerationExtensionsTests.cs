@@ -4,6 +4,8 @@ namespace Codify.System.Tests.Extensions;
 
 public class EnumerationExtensionsTests
 {
+#pragma warning disable CS0618 // Batch is intentionally obsolete; preserve regression coverage.
+
     [Fact]
     public void BatchSplitsSourceIntoFullAndPartialBatchesInOrder()
     {
@@ -36,6 +38,8 @@ public class EnumerationExtensionsTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => source.Batch(batchSize).ToArray());
     }
+
+#pragma warning restore CS0618
 
     [Theory]
     [InlineData(0, 0)]
