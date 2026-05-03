@@ -38,7 +38,7 @@ public sealed class MultiBooleanConverter : StaticInstance<MultiBooleanConverter
 
         foreach (object? value in values)
         {
-            object result = Default.Convert(value, null);
+            object result = Default.Convert(value);
             if (result == DependencyProperty.UnsetValue ||
                 result == Binding.DoNothing)
             {
