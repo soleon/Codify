@@ -1,57 +1,50 @@
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Data;
+
 namespace Codify.System.Windows.Data;
 
 /// <summary>
-/// Converts values to Boolean binding values.
+///     Converts values to Boolean binding values.
 /// </summary>
-public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global::System.Windows.Data.IValueConverter
+public sealed class BooleanConverter : StaticInstance<BooleanConverter>, IValueConverter
 {
+    internal static readonly object BoxedFalse = false;
     internal static readonly object BoxedTrue = true;
 
-    internal static readonly object BoxedFalse = false;
-
-    private static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type, object>
+    private static readonly ConcurrentDictionary<Type, object>
         DefaultStructValues = new();
 
     /// <inheritdoc />
     public object Convert(
         object? value,
-        global::System.Type targetType,
+        Type targetType,
         object? parameter,
-        global::System.Globalization.CultureInfo culture)
+        CultureInfo culture)
     {
         return Convert(value, parameter);
     }
 
     /// <summary>
-    /// Converts the supplied value to a Boolean value without binding context.
+    ///     Converts a binding target value back to the source value.
     /// </summary>
-    /// <param name="value">The value produced by the binding source.</param>
-    /// <param name="parameter">Use the string value <c>invert</c> to invert the conversion result.</param>
+    /// <param name="value">The value produced by the binding target.</param>
+    /// <param name="targetType">The binding source type.</param>
+    /// <param name="parameter">An optional converter parameter.</param>
+    /// <param name="culture">The culture to use for conversion.</param>
     /// <returns>
-    /// <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
-    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> when <paramref name="value" /> is do-nothing;
-    /// otherwise, a shared cached <see cref="bool" /> instance to avoid per-binding allocations.
+    ///     <see cref="global::System.Windows.Data.Binding.DoNothing" /> because reverse conversion is not supported.
     /// </returns>
-    [global::System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Performance",
-        "CA1822:Mark members as static",
-        Justification = "Kept as instance so callers reach it through the StaticInstance singleton, mirroring the IValueConverter implementation.")]
-    public object Convert(object? value, object? parameter = null)
+    public object ConvertBack(
+        object? value,
+        Type targetType,
+        object? parameter,
+        CultureInfo culture)
     {
-        if (value == global::System.Windows.DependencyProperty.UnsetValue ||
-            value == global::System.Windows.Data.Binding.DoNothing)
-        {
-            return value;
-        }
-
-        var isInvert = parameter is string stringValue &&
-                       stringValue.Equals("invert", global::System.StringComparison.OrdinalIgnoreCase);
-        return value switch
-        {
-            bool boolValue => Box(boolValue ^ isInvert),
-            null => Box(isInvert),
-            _ => Box(IsDefaultValue(value) ? isInvert : !isInvert)
-        };
+        return Binding.DoNothing;
     }
 
     internal static object Box(bool value)
@@ -59,23 +52,15 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
         return value ? BoxedTrue : BoxedFalse;
     }
 
-    /// <summary>
-    /// Converts a binding target value back to the source value.
-    /// </summary>
-    /// <param name="value">The value produced by the binding target.</param>
-    /// <param name="targetType">The binding source type.</param>
-    /// <param name="parameter">An optional converter parameter.</param>
-    /// <param name="culture">The culture to use for conversion.</param>
-    /// <returns>
-    /// <see cref="global::System.Windows.Data.Binding.DoNothing" /> because reverse conversion is not supported.
-    /// </returns>
-    public object ConvertBack(
-        object? value,
-        global::System.Type targetType,
-        object? parameter,
-        global::System.Globalization.CultureInfo culture)
+    private static bool IsDefaultStructValue(object value)
     {
-        return global::System.Windows.Data.Binding.DoNothing;
+        Type type = value.GetType();
+        return type.IsValueType &&
+               Equals(DefaultStructValues.GetOrAdd(
+                       type,
+                       static defaultType =>
+                           RuntimeHelpers.GetUninitializedObject(defaultType)),
+                   value);
     }
 
     private static bool IsDefaultValue(object value)
@@ -94,26 +79,48 @@ public sealed class BooleanConverter : StaticInstance<BooleanConverter>, global:
             float typedValue => typedValue == default,
             double typedValue => typedValue == default,
             decimal typedValue => typedValue == default,
-            global::System.IntPtr typedValue => typedValue == default,
-            global::System.UIntPtr typedValue => typedValue == default,
-            global::System.DateTime typedValue => typedValue == default,
-            global::System.DateTimeOffset typedValue => typedValue == default,
-            global::System.TimeSpan typedValue => typedValue == default,
-            global::System.DateOnly typedValue => typedValue == default,
-            global::System.TimeOnly typedValue => typedValue == default,
-            global::System.Guid typedValue => typedValue == default,
+            IntPtr typedValue => typedValue == default,
+            UIntPtr typedValue => typedValue == default,
+            DateTime typedValue => typedValue == default,
+            DateTimeOffset typedValue => typedValue == default,
+            TimeSpan typedValue => typedValue == default,
+            DateOnly typedValue => typedValue == default,
+            TimeOnly typedValue => typedValue == default,
+            Guid typedValue => typedValue == default,
             _ => IsDefaultStructValue(value)
         };
     }
 
-    private static bool IsDefaultStructValue(object value)
+    /// <summary>
+    ///     Converts the supplied value to a Boolean value without binding context.
+    /// </summary>
+    /// <param name="value">The value produced by the binding source.</param>
+    /// <param name="parameter">Use the string value <c>invert</c> to invert the conversion result.</param>
+    /// <returns>
+    ///     <see cref="global::System.Windows.DependencyProperty.UnsetValue" /> when <paramref name="value" /> is unset;
+    ///     <see cref="global::System.Windows.Data.Binding.DoNothing" /> when <paramref name="value" /> is do-nothing;
+    ///     otherwise, a shared cached <see cref="bool" /> instance to avoid per-binding allocations.
+    /// </returns>
+    [SuppressMessage(
+        "Performance",
+        "CA1822:Mark members as static",
+        Justification =
+            "Kept as instance so callers reach it through the StaticInstance singleton, mirroring the IValueConverter implementation.")]
+    public object Convert(object? value, object? parameter = null)
     {
-        var type = value.GetType();
-        return type.IsValueType &&
-               Equals(DefaultStructValues.GetOrAdd(
-                   type,
-                   static defaultType =>
-                       global::System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(defaultType)),
-                   value);
+        if (value == DependencyProperty.UnsetValue ||
+            value == Binding.DoNothing)
+        {
+            return value;
+        }
+
+        bool isInvert = parameter is string stringValue &&
+                        stringValue.Equals("invert", StringComparison.OrdinalIgnoreCase);
+        return value switch
+        {
+            bool boolValue => Box(boolValue ^ isInvert),
+            null => Box(isInvert),
+            _ => Box(IsDefaultValue(value) ? isInvert : !isInvert)
+        };
     }
 }

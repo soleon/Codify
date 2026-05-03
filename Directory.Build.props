@@ -37,7 +37,7 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectName)' == 'System' Or '$(MSBuildProjectName)' == 'System.Windows'">
-        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectName)' == 'Codify.System.Tests' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
@@ -45,8 +45,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.0" />
-        <PackageReference Include="xunit.v3" Version="3.2.2" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.0"/>
+        <PackageReference Include="xunit.v3" Version="3.2.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -54,6 +54,6 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(MSBuildProjectName)' == 'Codify.System.Tests' Or '$(MSBuildProjectName)' == 'Codify.System.Windows.Tests'">
-        <Using Include="Xunit" />
+        <Using Include="Xunit"/>
     </ItemGroup>
 </Project>

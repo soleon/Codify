@@ -1,7 +1,7 @@
 ﻿namespace Codify.System.ComponentModel;
 
 /// <summary>
-/// Provides observable expanded and selected state with synchronous and asynchronous change hooks.
+///     Provides observable expanded and selected state with synchronous and asynchronous change hooks.
 /// </summary>
 public class ExpandableNotificationObject : NotificationObject
 {
@@ -10,7 +10,7 @@ public class ExpandableNotificationObject : NotificationObject
     private bool _isSelected;
 
     /// <summary>
-    /// Gets or sets a value indicating whether the object is expanded.
+    ///     Gets or sets a value indicating whether the object is expanded.
     /// </summary>
     public bool IsExpanded
     {
@@ -28,7 +28,7 @@ public class ExpandableNotificationObject : NotificationObject
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the object is selected.
+    ///     Gets or sets a value indicating whether the object is selected.
     /// </summary>
     public bool IsSelected
     {
@@ -45,51 +45,7 @@ public class ExpandableNotificationObject : NotificationObject
         }
     }
 
-    /// <summary>
-    /// Called synchronously after <see cref="IsExpanded" /> changes.
-    /// </summary>
-    /// <param name="isExpanded">The new expanded state.</param>
-    protected virtual void OnExpansionChanged(bool isExpanded)
-    {
-    }
-
-    /// <summary>
-    /// Called after <see cref="IsExpanded"/> changes. The setter starts this hook without awaiting it;
-    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)"/>.
-    /// </summary>
-    /// <param name="isExpanded">The new expanded state.</param>
-    protected virtual global::System.Threading.Tasks.Task OnExpansionChangedAsync(bool isExpanded)
-    {
-        return global::System.Threading.Tasks.Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Called synchronously after <see cref="IsSelected" /> changes.
-    /// </summary>
-    /// <param name="isSelected">The new selected state.</param>
-    protected virtual void OnSelectionChanged(bool isSelected)
-    {
-    }
-
-    /// <summary>
-    /// Called after <see cref="IsSelected"/> changes. The setter starts this hook without awaiting it;
-    /// faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)"/>.
-    /// </summary>
-    /// <param name="isSelected">The new selected state.</param>
-    protected virtual global::System.Threading.Tasks.Task OnSelectionChangedAsync(bool isSelected)
-    {
-        return global::System.Threading.Tasks.Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Called when a task returned by an asynchronous change hook faults.
-    /// </summary>
-    /// <param name="exception">The observed asynchronous hook exception.</param>
-    protected virtual void OnAsyncHookException(global::System.Exception exception)
-    {
-    }
-
-    private void ObserveAsyncHook(global::System.Threading.Tasks.Task? task)
+    private void ObserveAsyncHook(Task? task)
     {
         if (task == null || task.IsCompletedSuccessfully)
         {
@@ -99,13 +55,13 @@ public class ExpandableNotificationObject : NotificationObject
         _ = ObserveAsyncHookAsync(task);
     }
 
-    private async global::System.Threading.Tasks.Task ObserveAsyncHookAsync(global::System.Threading.Tasks.Task task)
+    private async Task ObserveAsyncHookAsync(Task task)
     {
         try
         {
             await task.ConfigureAwait(false);
         }
-        catch (global::System.Exception exception)
+        catch (Exception exception)
         {
             try
             {
@@ -116,5 +72,49 @@ public class ExpandableNotificationObject : NotificationObject
                 // Keep exception observation from surfacing on the continuation path.
             }
         }
+    }
+
+    /// <summary>
+    ///     Called when a task returned by an asynchronous change hook faults.
+    /// </summary>
+    /// <param name="exception">The observed asynchronous hook exception.</param>
+    protected virtual void OnAsyncHookException(Exception exception)
+    {
+    }
+
+    /// <summary>
+    ///     Called synchronously after <see cref="IsExpanded" /> changes.
+    /// </summary>
+    /// <param name="isExpanded">The new expanded state.</param>
+    protected virtual void OnExpansionChanged(bool isExpanded)
+    {
+    }
+
+    /// <summary>
+    ///     Called after <see cref="IsExpanded" /> changes. The setter starts this hook without awaiting it;
+    ///     faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)" />.
+    /// </summary>
+    /// <param name="isExpanded">The new expanded state.</param>
+    protected virtual Task OnExpansionChangedAsync(bool isExpanded)
+    {
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Called synchronously after <see cref="IsSelected" /> changes.
+    /// </summary>
+    /// <param name="isSelected">The new selected state.</param>
+    protected virtual void OnSelectionChanged(bool isSelected)
+    {
+    }
+
+    /// <summary>
+    ///     Called after <see cref="IsSelected" /> changes. The setter starts this hook without awaiting it;
+    ///     faulted returned tasks are observed by <see cref="OnAsyncHookException(global::System.Exception)" />.
+    /// </summary>
+    /// <param name="isSelected">The new selected state.</param>
+    protected virtual Task OnSelectionChangedAsync(bool isSelected)
+    {
+        return Task.CompletedTask;
     }
 }

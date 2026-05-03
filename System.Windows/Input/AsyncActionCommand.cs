@@ -1,20 +1,20 @@
 namespace Codify.System.Windows.Input;
 
 /// <summary>
-/// Represents an asynchronous command that executes a parameterless task-returning delegate.
+///     Represents an asynchronous command that executes a parameterless task-returning delegate.
 /// </summary>
 public sealed class AsyncActionCommand : AsyncCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AsyncActionCommand" /> class.
+    ///     Initializes a new instance of the <see cref="AsyncActionCommand" /> class.
     /// </summary>
     /// <param name="execute">The asynchronous delegate to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
     public AsyncActionCommand(
-        global::System.Func<global::System.Threading.Tasks.Task> execute,
-        global::System.Func<bool>? canExecute = null)
+        Func<Task> execute,
+        Func<bool>? canExecute = null)
     {
-        global::System.ArgumentNullException.ThrowIfNull(execute);
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteFunc = _ => execute();
         CanExecuteFunc = _ => canExecute?.Invoke() ?? true;
@@ -22,37 +22,37 @@ public sealed class AsyncActionCommand : AsyncCommand
 }
 
 /// <summary>
-/// Represents an asynchronous command that executes a task-returning delegate with a typed parameter.
+///     Represents an asynchronous command that executes a task-returning delegate with a typed parameter.
 /// </summary>
 /// <typeparam name="T">The command parameter type.</typeparam>
 public sealed class AsyncActionCommand<T> : AsyncCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AsyncActionCommand{T}" /> class.
+    ///     Initializes a new instance of the <see cref="AsyncActionCommand{T}" /> class.
     /// </summary>
     /// <param name="execute">The asynchronous delegate to execute.</param>
     /// <param name="canExecute">An optional predicate that determines whether the command can execute.</param>
     public AsyncActionCommand(
-        global::System.Func<T, global::System.Threading.Tasks.Task> execute,
-        global::System.Func<T, bool>? canExecute = null)
+        Func<T, Task> execute,
+        Func<T, bool>? canExecute = null)
     {
-        global::System.ArgumentNullException.ThrowIfNull(execute);
+        ArgumentNullException.ThrowIfNull(execute);
 
         ExecuteFunc = param =>
         {
-            if (CommandParameter<T>.TryGetValue(param, out var value))
+            if (CommandParameter<T>.TryGetValue(param, out T value))
             {
                 return execute(value);
             }
 
             return CommandParameter<T>.IsNullInvalid(param)
-                ? global::System.Threading.Tasks.Task.CompletedTask
+                ? Task.CompletedTask
                 : throw CommandParameter<T>.CreateInvalidTypeException(param!);
         };
 
         CanExecuteFunc = param =>
         {
-            if (CommandParameter<T>.TryGetValue(param, out var value))
+            if (CommandParameter<T>.TryGetValue(param, out T value))
             {
                 return canExecute == null || canExecute(value);
             }
